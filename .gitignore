@@ -30,3 +30,13 @@
 *.exe
 *.out
 *.app
+
+.sconsign.dblite
+
+*.os
+
+*.stex
+
+*.md5
+
+*.import
