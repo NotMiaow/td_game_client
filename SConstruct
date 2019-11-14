@@ -50,13 +50,31 @@ if platform == "windows":
     target_path += 'win64/'
     cpp_library += '.windows.64'
 
-# , 'include', 'include/core', 'headers'
-env.Append(CPPPATH=['.', 'headers/', 'src/', godot_headers_path, cpp_bindings_path + 'include/', cpp_bindings_path + 'include/core/', cpp_bindings_path + 'include/gen/'])
+env.Append(CPPPATH=['.', 'src/', godot_headers_path, cpp_bindings_path + 'include/', cpp_bindings_path + 'include/core/', cpp_bindings_path + 'include/gen/',
+    'headers/_lib/basic_lib',
+    'headers/_lib/chain',
+    'headers/_lib/checkpoint_list',
+    'headers/_lib/path',
+    'headers/_lib/queue',
+    'headers/networking/events',
+    'headers/networking/actions',
+    'headers/networking/',
+    'headers/ecs/components',
+    'headers/ecs/systems',
+    'headers/ecs',
+    'headers'
+])
 env.Append(LIBPATH=[cpp_bindings_path + 'bin/'])
 env.Append(LIBS=[cpp_library])
 
 sources = []
-add_sources(sources, "source")
+add_sources(sources, "source/networking/")
+add_sources(sources, "source/ecs/components/")
+add_sources(sources, "source/ecs/systems/")
+add_sources(sources, "source/ecs/")
+add_sources(sources, "source/")
+
+
 
 library = env.SharedLibrary(target=target_path + target_name, source=sources)
 Default(library)
