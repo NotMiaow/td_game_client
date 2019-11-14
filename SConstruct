@@ -50,13 +50,13 @@ if platform == "windows":
     target_path += 'win64/'
     cpp_library += '.windows.64'
 
-# , 'include', 'include/core'
-env.Append(CPPPATH=['.', 'src/', godot_headers_path, cpp_bindings_path + 'include/', cpp_bindings_path + 'include/core/', cpp_bindings_path + 'include/gen/'])
+# , 'include', 'include/core', 'headers'
+env.Append(CPPPATH=['.', 'headers/', 'src/', godot_headers_path, cpp_bindings_path + 'include/', cpp_bindings_path + 'include/core/', cpp_bindings_path + 'include/gen/'])
 env.Append(LIBPATH=[cpp_bindings_path + 'bin/'])
 env.Append(LIBS=[cpp_library])
 
 sources = []
-add_sources(sources, "src")
+add_sources(sources, "source")
 
 library = env.SharedLibrary(target=target_path + target_name, source=sources)
 Default(library)

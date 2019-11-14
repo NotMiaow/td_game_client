@@ -1,4 +1,4 @@
-#include "gameClient.hpp"
+#include "gameClient.h"
 
 using namespace godot;
 

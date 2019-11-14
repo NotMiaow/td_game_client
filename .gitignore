@@ -40,3 +40,5 @@
 *.md5
 
 *.import
+
+.vscode/
