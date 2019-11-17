@@ -11,7 +11,7 @@
 #include "action.h"
 #include "client.h"
 #include "networkManager.h"
-#include "logic.h"
+#include "ecs.h"
 
 namespace godot
 {
@@ -28,19 +28,23 @@ public:
 
 	//Init of game client
 	void InitGameClient(int serverPort);
+	void CleanUp();
 
 public:
-	int m_serverPort;
-
+	//Terminate
 	std::atomic<bool> m_alive;
 	std::thread m_terminateThread;
-
 	std::promise<void> m_exitSignal;
 	std::shared_future<void> m_futureObj;
 
+	//Networking
+	int m_serverPort;
+	Client m_client;
+	NetworkManager* m_networkManager;
+
+	//Game related
 	SharedQueue<Event *> m_eventQueue;
-	NetworkManager *m_networkManager;
-	Logic *m_logic;
+	ECS* m_ecs;
 };
 } // namespace godot
 

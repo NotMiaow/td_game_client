@@ -4,6 +4,7 @@
 #include <string>
 
 static const int TOKEN_LENGTH = 8;
+static const int MAX_PLAYERS = 4;
 
 //Engine constants
 enum Behaviour { Move, Rage, Despawn };

@@ -7,6 +7,5 @@ struct Client
 {
 	int id;
 	std::string token;
-	int socketId;
 };
 #endif

@@ -70,6 +70,7 @@ struct DisconnectEvent : public Event
 
 struct ReadyUpEvent : public Event
 {
+	ReadyUpEvent() { }
 	ReadyUpEvent(int playerPosition, Queue<ResourceComponent> resources)
 	{
 		this->playerPosition = playerPosition;

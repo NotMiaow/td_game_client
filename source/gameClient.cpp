@@ -19,12 +19,18 @@ void GameClient::InitGameClient(int serverPort)
 	m_alive = true;
 	m_futureObj = m_exitSignal.get_future();
 
-	m_eventQueue = SharedQueue<Event*>();
-	m_networkManager = new NetworkManager(std::move(m_futureObj), m_serverPort, m_eventQueue);
-//	m_logic = new Logic(std::move(m_futureObj), m_eventQueue);
+	m_client.id = PLAYER_ID;
+	m_client.token = PLAYER_TOKEN;
+	m_eventQueue = SharedQueue<Event *>();
+	m_networkManager = new NetworkManager(m_client, std::move(m_futureObj), m_serverPort, m_eventQueue);
+	m_ecs = new ECS(m_networkManager, m_eventQueue);
 }
 
 void GameClient::Update()
 {
-	
+	m_ecs->Loop();
+}
+
+void GameClient::CleanUp()
+{
 }

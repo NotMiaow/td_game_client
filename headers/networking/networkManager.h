@@ -19,12 +19,12 @@
 
 //Required
 #include "shared_queue.h"
-#include "event.h"
-#include "eventTranslator.h"
 #include "action.h"
 #include "actionLanguage.h"
-#include "actionTranslator.h"
+#include "event.h"
+#include "eventTranslator.h"
 #include "cst.h"
+#include "client.h"
 
 #define DEFAULT_BUFLEN 512
 
@@ -32,13 +32,13 @@ class NetworkManager
 {
 public:
 	NetworkManager() { }
-	NetworkManager(std::shared_future<void> &&clientFuture, const int serverPort, SharedQueue<Event *>& actionQueue);
+	NetworkManager(Client& client, std::shared_future<void> &&clientFuture, const int serverPort, SharedQueue<Event *>& eventQueue);
 	~NetworkManager();
 	bool SetUpClientEnvironment();
 	void TryConnect();
 	void ListenToServer();
 	void WaitForTerminate();
-	void SendEvent(Event* event);
+	void SendEvent(const std::string& event);
 
 private:
 	//Terminating
@@ -55,8 +55,7 @@ private:
 	std::thread m_listeningThread;
 
 	//Communicating
-	int m_clientId;
-	std::string m_sessionToken;
+	Client m_client;
 	SharedQueue<Event*>* m_eventQueue;
 };
 
