@@ -1,4 +1,4 @@
-#ifndef	GAME_TRANSLATOR_H__
+#ifndef GAME_TRANSLATOR_H__
 #define GAME_TRANSLATOR_H__
 
 //Godot includes
@@ -10,105 +10,122 @@
 #include "event.h"
 #include "eventLanguage.h"
 #include "gameEnums.h"
+#include "queue.h"
 
-static Event* CreateErrorEvent(const int &clientId, EventType aType, GameErrorType eType)
+static Event *CreateErrorEvent(EventType aType, GameErrorType eType)
 {
-	Event* e = new ErrorEvent(clientId, aType, eType);
+	Event *e = new ErrorEvent(aType, eType);
 	return e;
 }
 
-static Event* CreateConnectEvent(const int & clientId)
+static Event *CreateConnectEvent()
 {
-	Event *e = new ConnectEvent(clientId);
+	Event *e = new ConnectEvent();
 	return e;
 }
 
-static Event* CreateDisconnectEvent(const int& clientId, DisconnectReason reason = RKicked)
+static Event *CreateDisconnectEvent(DisconnectReason reason = RKicked)
 {
-	Event *e = new DisconnectEvent(clientId, reason);
+	Event *e = new DisconnectEvent(reason);
 	return e;
 }
 
-static Event* CreateReadyUpEvent(const int& clientId)
+static Event *CreateReadyUpEvent(std::vector<std::string> elements)
 {
-	Event* e = new ReadyUpEvent(clientId);
+	int playerPosition;
+	Queue<ResourceComponent> resources;
+
+	if (!ToInt(elements[0], playerPosition)) return CreateErrorEvent(EBuildTower, GEWrongParameterType);
+	for (int i = 1; i < elements.size(); i++)
+	{
+		ResourceComponent resource;
+		if(ToInt(elements[i], resource.gold)) resources.Push(resource);
+		else return CreateErrorEvent(EReadyUp, GEWrongParameterType);
+	}
+
+	Event *e = new ReadyUpEvent(playerPosition, resources);
 	return e;
 }
 
-static Event* CreateBuildTowerEvent(const int& clientId, std::vector<std::string> elements)
+static Event *CreateBuildTowerEvent(std::vector<std::string> elements)
 {
 	int towerType;
 	godot::Vector2 position;
 
-	if (elements.size() != 2) return CreateErrorEvent(clientId, EBuildTower, GEWrongParemeterAmount);
-	if (!ToInt(elements[0], towerType)) return CreateErrorEvent(clientId, EBuildTower, GEWrongParameterType);
-	if(!ToPosition(elements[1], position)) return CreateErrorEvent(clientId, EBuildTower, GEWrongParameterType);
+	if (elements.size() != 2)
+		return CreateErrorEvent(EBuildTower, GEWrongParemeterAmount);
+	if (!ToInt(elements[0], towerType))
+		return CreateErrorEvent(EBuildTower, GEWrongParameterType);
+	if (!ToPosition(elements[1], position))
+		return CreateErrorEvent(EBuildTower, GEWrongParameterType);
 
-	Event* e = new BuildTowerEvent(clientId, towerType, position);
+	Event *e = new BuildTowerEvent(towerType, position);
 	return e;
 }
 
-static Event* CreateSellTowerEvent(const int& clientId, std::vector<std::string> elements)
+static Event *CreateSellTowerEvent(std::vector<std::string> elements)
 {
 	int towerPosition;
 
-	if (elements.size() != 1) return CreateErrorEvent(clientId, ESellTower, GEWrongParemeterAmount);
-	if (!ToInt(elements[0], towerPosition)) return CreateErrorEvent(clientId, ESellTower, GEWrongParameterType);
+	if (elements.size() != 1)
+		return CreateErrorEvent(ESellTower, GEWrongParemeterAmount);
+	if (!ToInt(elements[0], towerPosition))
+		return CreateErrorEvent(ESellTower, GEWrongParameterType);
 
-	Event* e = new SellTowerEvent(clientId, towerPosition);
+	Event *e = new SellTowerEvent(towerPosition);
 	return e;
 }
 
-
-static Event* CreateSendUnitGroupEvent(const int& clientId, std::vector<std::string> elements)
+static Event *CreateSendUnitGroupEvent(std::vector<std::string> elements)
 {
 	int unitType;
 
-	if (elements.size() != 1) return CreateErrorEvent(clientId, ESendUnitGroup, GEWrongParemeterAmount);
-	if (!ToInt(elements[0], unitType)) return CreateErrorEvent(clientId, ESendUnitGroup, GEWrongParameterType);
+	if (elements.size() != 1)
+		return CreateErrorEvent(ESendUnitGroup, GEWrongParemeterAmount);
+	if (!ToInt(elements[0], unitType))
+		return CreateErrorEvent(ESendUnitGroup, GEWrongParameterType);
 
-	Event* e = new SendUnitGroupEvent(clientId, unitType);
+	Event *e = new SendUnitGroupEvent(unitType);
 	return e;
 }
 
-static Event* CreateGameEvent(const int & clientId, std::vector<std::string> elements)
+static Event *CreateGameEvent(std::vector<std::string> elements)
 {
 	int eventType = -1;
 	bool canInt = ToInt(elements[0], eventType);
 
 	elements.erase(elements.begin());
-	
+
 	if (canInt)
 	{
 		switch (eventType)
 		{
 		case EConnect:
-			return CreateConnectEvent(clientId);
+			return CreateConnectEvent();
 		case EDisconnect:
-			return CreateDisconnectEvent(clientId);
+			return CreateDisconnectEvent();
 		case EReadyUp:
-			return CreateReadyUpEvent(clientId);
+			return CreateReadyUpEvent(elements);
 		case ESpawnUnitGroup:
-			//This event is send only
+			return CreateSendUnitGroupEvent(elements);
 			break;
 		case ENewPath:
-			//This event is send only
+			//readonly
 			break;
 		case ERage:
-			//This event is send only
+			//readonly
 			break;
 		case EBuildTower:
-			return CreateBuildTowerEvent(clientId, elements);
+			return CreateBuildTowerEvent(elements);
 		case ESellTower:
-			return CreateSellTowerEvent(clientId, elements);
+			return CreateSellTowerEvent(elements);
 		case ESendUnitGroup:
-			return CreateSendUnitGroupEvent(clientId, elements); //This event is receive only
+			return CreateSendUnitGroupEvent(elements);
 		default:
-			return CreateErrorEvent(clientId, ECreateEvent, GEWrongEventType);
+			return CreateErrorEvent(ECreateEvent, GEWrongEventType);
 		}
 	}
-	return CreateErrorEvent(clientId, ECreateEvent, GEWrongEventType);
+	return CreateErrorEvent(ECreateEvent, GEWrongEventType);
 }
-
 
 #endif

@@ -11,7 +11,7 @@
 #include "Vector2.hpp"
 
 #include "checkpointList.h"
-#include "chain.h"
+#include "queue.h"
 #include "resourceComponent.h"
 #include "basicLib.h"
 #include "sharedLanguage.h"
@@ -27,19 +27,13 @@ struct Event
 
 struct ErrorEvent : public Event
 {
-	ErrorEvent(const int& clientId, EventType eType, GameErrorType geType)
+	ErrorEvent(EventType eType, GameErrorType geType)
 	{
-		this->clientId = clientId;
 		this->eType = eType;
 		this->geType = geType;
 	}
 	EventType GetType() const { return EError; }
-	std::string ToNetworkable() const
-	{
-		std::ostringstream os;
-		os << "{" << EError << ";" << eType << ";" << geType << "}";
-		return os.str();
-	}
+	std::string ToNetworkable() const { return ""; }
 
 	EventType eType;
 	GameErrorType geType;
@@ -47,10 +41,7 @@ struct ErrorEvent : public Event
 
 struct ConnectEvent : public Event
 {
-	ConnectEvent(const int&  clientId)
-	{
-		this->clientId = clientId;
-	}
+	ConnectEvent() { }
 	EventType GetType() const { return EConnect; }
 	std::string ToNetworkable() const
 	{
@@ -62,10 +53,8 @@ struct ConnectEvent : public Event
 
 struct DisconnectEvent : public Event
 {
-	DisconnectEvent(const int& clientId, DisconnectReason reason = RKicked)
+	DisconnectEvent(DisconnectReason reason)
 	{
-
-		this->clientId = clientId;
 		this->reason = reason;
 	}
 	EventType GetType() const { return EDisconnect; }
@@ -81,28 +70,21 @@ struct DisconnectEvent : public Event
 
 struct ReadyUpEvent : public Event
 {
-	ReadyUpEvent(const int&  clientId)
+	ReadyUpEvent(int playerPosition, Queue<ResourceComponent> resources)
 	{
-		this->clientId = clientId;
+		this->playerPosition = playerPosition;
+		this->resources = resources;
 	}
 	EventType GetType() const { return EReadyUp; }
 	std::string ToNetworkable() const
 	{
-		CheckpointList<ResourceComponent>::Node<ResourceComponent>* node = resources->GetNodeHead();
 		std::ostringstream os;
-		os << "{" << EReadyUp << ";" << playerPosition << ";";
-		while (node != NULL)
-		{
-			os << node->data.gold << ((node->next != NULL) ? ";" : "");
-			node = resources->GetNextNode(&*node);
-		}
-		os << "}";
-		std::cout << os.str() << std::endl;
+		os << "{" << EReadyUp << "}";
 		return os.str();
 	}
 
 	int playerPosition;
-	CheckpointList<ResourceComponent>* resources;
+	Queue<ResourceComponent> resources;
 };
 
 struct SpawnUnitGroupEvent : public Event
@@ -121,22 +103,9 @@ struct NewPathEvent : public Event
 {
 	NewPathEvent() { }
 	EventType GetType() const { return ENewPath; }
-	std::string ToNetworkable() const
-	{
-		std::ostringstream os;
-		os << "{" << ENewPath << ";" << motorPosition << ";";
-		Chain<godot::Vector2>::Node<godot::Vector2>* node = path->GetHead();
-		while (node != NULL)
-		{
-			os << "(" << node->data.y << ":" << node->data.x << ")" << (node->next != NULL ? ";" : "");
-			node = path->GetNext(*node);
-		}
-		os << "}";
-		return os.str();
-	}
 
 	int motorPosition;
-	Chain<godot::Vector2>* path;
+	Queue<godot::Vector2>* path;
 };
 
 struct RageEvent : public Event
@@ -155,7 +124,7 @@ struct RageEvent : public Event
 
 struct BuildTowerEvent : public Event
 {
-	BuildTowerEvent(const int&  clientId, const int& towerType, const godot::Vector2& position)
+	BuildTowerEvent(const int& towerType, const godot::Vector2& position)
 	{
 
 		this->clientId = clientId;
@@ -176,7 +145,7 @@ struct BuildTowerEvent : public Event
 
 struct SellTowerEvent : public Event
 {
-	SellTowerEvent(const int&  clientId, const int& towerPosition)
+	SellTowerEvent(const int& towerPosition)
 	{
 
 		this->clientId = clientId;
@@ -196,7 +165,7 @@ struct SellTowerEvent : public Event
 
 struct SendUnitGroupEvent : public Event
 {
-	SendUnitGroupEvent(const int& clientId, const int& unitType)
+	SendUnitGroupEvent(const int& unitType)
 	{
 		this->clientId = clientId;
 		this->unitType = unitType;
@@ -204,7 +173,9 @@ struct SendUnitGroupEvent : public Event
 	EventType GetType() const { return ESendUnitGroup; }
 	std::string ToNetworkable() const
 	{
-		return "";	//This event is recieve only
+		std::ostringstream os;
+		os << "{" << ESendUnitGroup << "}";
+		return os.str();
 	}
 
 	int unitType;

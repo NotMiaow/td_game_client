@@ -9,44 +9,38 @@
 #include "action.h"
 #include "actionLanguage.h"
 
-static Action* CreateErrorAction(const int& socketId, const int &clientId, ActionType aType, NetworkingErrorType eType)
+static Action* CreateErrorAction(ActionType aType, NetworkingErrorType eType)
 {
-	Action* action = new ErrorAction(socketId, clientId, aType, eType);
+	Action* action = new ErrorAction(aType, eType);
 	return action;
 }
 
-static Action* CreateConnectAction(const int & socketId, const std::vector<std::string>& elements)
+static Action* CreateConnectAction(const std::vector<std::string>& elements)
 {
-	int clientId = -1;
+	if (elements.size() != 0) return CreateErrorAction(AConnect, NEWrongParemeterAmount);
 
-	if (elements.size() != 2) return CreateErrorAction(socketId, -1, AConnect, NEWrongParemeterAmount);
-	if (!ToInt(elements[0], clientId)) return CreateErrorAction(socketId, -1, AConnect, NEWrongParameterType);
-
-	Action *action = new ConnectAction(socketId, clientId, elements[1]);
+	Action *action = new ConnectAction();
 	return action;
 }
 
-static Action* CreateDisconnectAction(const int& socketId, DisconnectReason reason = RKicked)
+static Action* CreateDisconnectAction(DisconnectReason reason = RKicked)
 {
-	Action *action = new DisconnectAction(socketId, reason);
+	Action *action = new DisconnectAction(reason);
 	return action;
 }
 
-static Action* CreateGameAction(const int& socketId, std::vector<std::string> elements)
+static Action* CreateGameAction(std::vector<std::string> elements)
 {
-	int clientId = -1;
+	if (elements.size() != 1) return CreateErrorAction(AConnect, NEWrongParemeterAmount);
 
-	if (elements.size() != 3) return CreateErrorAction(socketId, -1, AConnect, NEWrongParemeterAmount);
-	if (!ToInt(elements[0], clientId)) return CreateErrorAction(socketId, -1, AConnect, NEWrongParameterType);
-
-	Action *action = new GameAction(socketId, clientId, elements[1], elements[2]);
+	Action *action = new GameAction(elements[0]);
 	return action;
 }
 
 
-static Action* CreateAction(int const& socketId, std::vector<std::string> elements)
+static Action* CreateAction(std::vector<std::string> elements)
 {
-	if (elements.size() < 1) return CreateErrorAction(socketId, -1, ACreateAction, NEWrongParemeterAmount);
+	if (elements.size() < 1) return CreateErrorAction(ACreateAction, NEWrongParemeterAmount);
 
 	int actionType = -1;
 	bool canInt = ToInt(elements[0], actionType);
@@ -57,16 +51,16 @@ static Action* CreateAction(int const& socketId, std::vector<std::string> elemen
 		switch (actionType)
 		{
 		case AConnect:
-			return CreateConnectAction(socketId, elements);
+			return CreateConnectAction(elements);
 		case ADisconnect:
-			return CreateDisconnectAction(socketId);
+			return CreateDisconnectAction();
 		case AGameAction:
-			return CreateGameAction(socketId, elements);
+			return CreateGameAction(elements);
 		default:
-			return CreateErrorAction(socketId, -1, ACreateAction, NEWrongActionType);
+			return CreateErrorAction(ACreateAction, NEWrongActionType);
 		}
 	}
-	return CreateErrorAction(socketId, -1, ACreateAction, NEWrongActionType);
+	return CreateErrorAction(ACreateAction, NEWrongActionType);
 }
 
 #endif

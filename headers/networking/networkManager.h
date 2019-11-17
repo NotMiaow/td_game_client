@@ -1,49 +1,63 @@
 #ifndef NETWORK_MANAGER_H__
 #define NETWORK_MANAGER_H__
 
-#include <unistd.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <stdlib.h>
-#include <stdio.h>
+//Godot
+#include <Godot.hpp>
+
+//Networking
+#include <stdio.h> 
+#include <sys/socket.h> 
+#include <arpa/inet.h> 
+#include <unistd.h> 
+#include <string.h> 
+
+//Threading
 #include <thread>
 #include <chrono>
 #include <future>
+#include <string>
 
-#define DEFAULT_BUFLEN 512
-
-#include "actionLanguage.h"
+//Required
+#include "shared_queue.h"
+#include "event.h"
+#include "eventTranslator.h"
 #include "action.h"
-#include "queue.h"
+#include "actionLanguage.h"
 #include "actionTranslator.h"
 #include "cst.h"
+
+#define DEFAULT_BUFLEN 512
 
 class NetworkManager
 {
 public:
-	NetworkManager();
-	NetworkManager(std::shared_future<void>&& serverFuture, const int serverPort, Queue<Action*>* actionQueue);
+	NetworkManager() { }
+	NetworkManager(std::shared_future<void> &&clientFuture, const int serverPort, SharedQueue<Event *>& actionQueue);
 	~NetworkManager();
-	bool SetUpClientEnvironment(const int serverPort);
-	void AcceptConnection(sockaddr_in& address);
-	void ListenToClient(const int& socketId);
+	bool SetUpClientEnvironment();
+	void TryConnect();
+	void ListenToServer();
 	void WaitForTerminate();
-	void MessageClient(const int& socketId, std::string message);
-	void KickClient(const int& socketId);
-	void BroadCast(std::string& message);
+	void SendEvent(Event* event);
 
 private:
-	std::shared_future<void> m_serverFuture;
+	//Terminating
+	std::shared_future<void> m_clientFuture;
 	std::atomic<bool> m_alive;
 	std::thread m_terminateThread;
-	std::thread m_listeningThread;
-	std::thread m_clientThreads[MAX_CLIENTS];
 
-	int m_clientsPort;
-	Queue<Action*>* m_actionQueue;
-	int m_listeningSocket;
-	int m_clientSockets[MAX_CLIENTS];
-	bool m_socketActive[MAX_CLIENTS];
+	//Networking
+	bool m_connected;
+	int m_serverPort;
+	int m_clientSocket;
+	struct sockaddr_in m_serverAddress;
+	std::thread m_connectionThread;
+	std::thread m_listeningThread;
+
+	//Communicating
+	int m_clientId;
+	std::string m_sessionToken;
+	SharedQueue<Event*>* m_eventQueue;
 };
 
 #endif

@@ -16,17 +16,14 @@ struct Action
 	virtual std::string ToNetworkable() const = 0;
 
 	int clientId;
-	int socketId;
 	std::string sessionToken;
 };
 
 struct ErrorAction : public Action
 {
-	ErrorAction(const int& socketId, const int& clientId, ActionType aType, NetworkingErrorType neType)
+	//Read only
+	ErrorAction(ActionType aType, NetworkingErrorType neType)
 	{
-		this->clientId = clientId;
-		this->socketId = socketId;
-		this->sessionToken = "";
 		this->aType = aType;
 		this->neType = neType;
 	}
@@ -34,7 +31,7 @@ struct ErrorAction : public Action
 	std::string ToNetworkable() const
 	{
 		std::ostringstream os;
-		os << "{" << AError << ";" << aType << ";" << neType << ";" << clientId << ";" << socketId << "}";
+		os << "{" << AError << ";" << aType << ";" << neType << "}";
 		return os.str();
 	}
 
@@ -44,28 +41,22 @@ struct ErrorAction : public Action
 
 struct ConnectAction : public Action
 {
-	ConnectAction(const int& socketId, const int&  clientId, std::string sessionToken)
-	{
-		this->clientId = clientId;
-		this->socketId = socketId;
-		this->sessionToken = sessionToken;
-	}
+	ConnectAction()	{ }
 	ActionType GetType() const { return AConnect; }
 	std::string ToNetworkable() const
 	{
 		std::ostringstream os;
-		os << "{" << AConnect << "}";
+		os << "{" << AConnect << ";" << clientId << ";" << sessionToken << "}";
 		return os.str();
 	}
 };
 
 struct DisconnectAction : public Action
 {
-	DisconnectAction(const int& socketId, DisconnectReason reason) : reason(reason)
+	DisconnectAction() { }
+	DisconnectAction(DisconnectReason reason)
 	{
-		this->socketId = socketId;
-		this->clientId = -1;
-		this->sessionToken = "";
+		this->reason = reason;
 	}
 	ActionType GetType() const { return ADisconnect; }
 	std::string ToNetworkable() const
@@ -80,18 +71,16 @@ struct DisconnectAction : public Action
 
 struct GameAction : public Action
 {
-	GameAction(const int& socketId, const int& clientId, const std::string& sessionToken, const std::string& gameEvent)
+	GameAction() { }
+	GameAction(const std::string& gameEvent)
 	{
-		this->socketId = socketId;
-		this->clientId = clientId;
-		this->sessionToken = sessionToken;
 		this->gameEvent = gameEvent;
 	}
 	ActionType GetType() const { return AGameAction; }
 	std::string ToNetworkable() const
 	{
 		std::ostringstream os;
-		os << "{" << AGameAction << ";" << gameEvent << "}" <<std::endl;
+		os << "{" << AGameAction << ";" << clientId << ";" << sessionToken << ";" << gameEvent << "}" <<std::endl;
 		return os.str();
 	}
 
