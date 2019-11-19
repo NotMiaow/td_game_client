@@ -36,9 +36,10 @@ public:
     void Loop();
 private:
     void SwitchEvent();
-    void ConnectPlayer();
+    void Connect();
+    void ReadyUp();
 private:
-    Event* event;
+    Event* m_event;
     SharedQueue<Event*>* m_eventQueue;
 
    	CheckpointList<PlayerComponent>* m_players;

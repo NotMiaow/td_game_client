@@ -59,11 +59,11 @@ void NetworkManager::TryConnect()
 			{
 				m_connected = true;
 				m_listeningThread = std::thread(&NetworkManager::ListenToServer, this);
+
 				ConnectAction connectAction;
 				connectAction.clientId = m_client.id;
 				connectAction.sessionToken = m_client.token;
 				std::string message = connectAction.ToNetworkable().c_str();
-				std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 				send(m_clientSocket, message.c_str(), message.length(), 0);
 			}
 		}
@@ -73,17 +73,15 @@ void NetworkManager::TryConnect()
 void NetworkManager::ListenToServer()
 {
 	int iResult;
-	char buffer[DEFAULT_BUFLEN];
+	char recvbuf[DEFAULT_BUFLEN];
+	int recvbuflen = DEFAULT_BUFLEN;
 	while (m_alive && m_connected)
 	{
-		std::string temp = "m_alive" + std::to_string(m_alive) + "\n" + "m_connected: " + std::to_string(m_connected) + "\n";
-		godot::Godot::print(temp.c_str());
-		iResult = read(m_clientSocket, buffer, DEFAULT_BUFLEN);
+		iResult = read(m_clientSocket, recvbuf, recvbuflen);
 		if (iResult > 0)
 		{
-			Event *event = CreateGameEvent(Split(buffer, iResult));
+			Event *event = CreateGameEvent(Split(recvbuf, iResult));
 			m_eventQueue->Push(event);
-			godot::Godot::print(event->ToNetworkable().c_str());
 		}
 		else
 		{
@@ -109,8 +107,6 @@ void NetworkManager::SendEvent(const std::string &event)
 
 void NetworkManager::WaitForTerminate()
 {
-	while (m_clientFuture.wait_for(std::chrono::milliseconds(1000)) == std::future_status::timeout)
-	{
-	}
+	while (m_clientFuture.wait_for(std::chrono::milliseconds(1000)) == std::future_status::timeout);
 	m_alive = false;
 }

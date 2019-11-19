@@ -47,7 +47,7 @@ private:
 	std::thread m_terminateThread;
 
 	//Networking
-	bool m_connected;
+	std::atomic<bool> m_connected;
 	int m_serverPort;
 	int m_clientSocket;
 	struct sockaddr_in m_serverAddress;

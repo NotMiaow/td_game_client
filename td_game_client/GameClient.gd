@@ -1,9 +1,9 @@
 extends Node
 
-var gameClient
+var gameClient = load("res://bin/gameClient.gdns").new()
 func _ready():
-	gameClient = load("res://bin/gameClient.gdns").new()
 	gameClient.InitGameClient(27016);
 
-#func _process(delta):
-#	gameClient.Update()
+func _process(delta):
+	gameClient.Update()
+	var a = delta
