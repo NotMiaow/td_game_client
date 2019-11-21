@@ -7,15 +7,22 @@
 #include <string>
 #include <sstream>
 
+//Libraries
+#include "basicLib.h"
+#include "queue.h"
+#include "checkpointList.h"
+
 //Godot includes
+#include "Godot.hpp"
 #include "Vector2.hpp"
 
-#include "checkpointList.h"
-#include "queue.h"
-#include "resourceComponent.h"
-#include "basicLib.h"
+//Networking
 #include "sharedLanguage.h"
 #include "eventLanguage.h"
+
+//Components
+#include "playerComponent.h"
+#include "bankComponent.h"
 
 struct Event
 {
@@ -70,12 +77,14 @@ struct DisconnectEvent : public Event
 
 struct ReadyUpEvent : public Event
 {
-	ReadyUpEvent() { }
-	ReadyUpEvent(int playerPosition, Queue<ResourceComponent> resources)
+	ReadyUpEvent() { players = 0; banks = 0; }
+	ReadyUpEvent(int playerPosition, std::vector<PlayerComponent>* players, std::vector<BankComponent>* banks)
 	{
 		this->playerPosition = playerPosition;
-		this->resources = resources;
+		this->players = players;
+		this->banks = banks;
 	}
+	~ReadyUpEvent() { delete players; delete banks; }
 	EventType GetType() const { return EReadyUp; }
 	std::string ToNetworkable() const
 	{
@@ -85,7 +94,8 @@ struct ReadyUpEvent : public Event
 	}
 
 	int playerPosition;
-	Queue<ResourceComponent> resources;
+	std::vector<PlayerComponent>* players;
+	std::vector<BankComponent>* banks;
 };
 
 struct SpawnUnitGroupEvent : public Event

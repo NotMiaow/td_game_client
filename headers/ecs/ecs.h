@@ -12,6 +12,7 @@
 
 //Components
 #include "playerComponent.h"
+#include "bankComponent.h"
 #include "motorComponent.h"
 #include "transformComponent.h"
 #include "checkpointList.h"
@@ -40,6 +41,7 @@ private:
 private:
 	//Components
 	CheckpointList<PlayerComponent> m_players;
+	CheckpointList<BankComponent> m_banks;
 	CheckpointList<MotorComponent> m_motors;
 	CheckpointList<TransformComponent> m_transforms;
 	

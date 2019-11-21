@@ -2,13 +2,8 @@
 
 ECS::ECS(NetworkManager* networkmanager, SharedQueue<Event*>& eventQueue)
 {
-    //Components
-    m_players = CheckpointList<PlayerComponent>();
-    m_motors = CheckpointList<MotorComponent>();
-    m_transforms = CheckpointList<TransformComponent>();
-
     //Event manager
-    m_eventManager = EventManager(networkmanager, eventQueue, m_players, m_motors, m_transforms);
+    m_eventManager = EventManager(networkmanager, eventQueue, m_players, m_banks, m_motors, m_transforms);
 
     //Systems
     m_timeSystem = TimeSystem();

@@ -81,8 +81,8 @@ void NetworkManager::ListenToServer()
 		if (iResult > 0)
 		{
 			Event *event = CreateGameEvent(Split(recvbuf, iResult));
-			m_eventQueue->Push(event);
-		}
+ 			m_eventQueue->Push(event);
+ 		}
 		else
 		{
 			godot::Godot::print(std::string("Connection lost, attempting reconnection in " + std::to_string(RECONNECTION_ATTEMPT_DELAY) + " seconds.").c_str());

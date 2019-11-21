@@ -1,16 +1,27 @@
-#ifndef GAME_TRANSLATOR_H__
-#define GAME_TRANSLATOR_H__
+#ifndef EVENT_TRANSLATOR_H__
+#define EVENT_TRANSLATOR_H__
 
-//Godot includes
+#include <string>
+#include <vector>
+
+//Libraries
+#include "basicLib.h"
+#include "checkpointList.h"
+
+//Godot
+#include <Godot.hpp>
 #include <Vector2.hpp>
 
-//required
-#include <string>
-#include "basicLib.h"
+//Networking
 #include "event.h"
 #include "eventLanguage.h"
+
+//Game related
 #include "gameEnums.h"
-#include "queue.h"
+
+//Components
+#include "bankComponent.h"
+#include "playerComponent.h"
 
 static Event *CreateErrorEvent(EventType aType, GameErrorType eType)
 {
@@ -33,17 +44,24 @@ static Event *CreateDisconnectEvent(DisconnectReason reason = RKicked)
 static Event *CreateReadyUpEvent(std::vector<std::string> elements)
 {
 	int playerPosition;
-	Queue<ResourceComponent> resources;
+	PlayerComponent player;
+	BankComponent bank;
+	std::vector<PlayerComponent>* players = new std::vector<PlayerComponent>();;
+	std::vector<BankComponent>* banks = new std::vector<BankComponent>();;
 
-	if (!ToInt(elements[0], playerPosition)) return CreateErrorEvent(EBuildTower, GEWrongParameterType);
+	if (!ToInt(elements[0], playerPosition)) return CreateErrorEvent(EReadyUp, GEWrongParameterType);
 	for (int i = 1; i < elements.size(); i++)
 	{
-		ResourceComponent resource;
-		if(ToInt(elements[i], resource.gold)) resources.Push(resource);
+		//Player
+		player.connected = elements[i] == "1";
+		player.ready = elements[++i] == "1";
+		if(ToInt(elements[++i], player.lives)) players->push_back(player);
+		//Banks
+		if(ToInt(elements[++i], bank.gold) && ToInt(elements[++i], bank.income)) banks->push_back(bank);
 		else return CreateErrorEvent(EReadyUp, GEWrongParameterType);
 	}
 
-	Event *e = new ReadyUpEvent(playerPosition, resources);
+	Event *e = new ReadyUpEvent(playerPosition, players, banks);
 	return e;
 }
 

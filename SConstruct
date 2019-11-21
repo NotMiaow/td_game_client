@@ -69,7 +69,6 @@ env.Append(LIBS=[cpp_library])
 
 sources = []
 add_sources(sources, "source/networking/")
-add_sources(sources, "source/ecs/components/")
 add_sources(sources, "source/ecs/systems/")
 add_sources(sources, "source/ecs/")
 add_sources(sources, "source/")

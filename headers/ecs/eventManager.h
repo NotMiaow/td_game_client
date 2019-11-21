@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <math.h>
+#include <string>
+#include <vector>
 
 //Godot
 #include "Godot.hpp"
@@ -15,6 +17,7 @@
 //Components
 #include "client.h"
 #include "playerComponent.h"
+#include "bankComponent.h"
 #include "motorComponent.h"
 #include "transformComponent.h"
 
@@ -30,19 +33,22 @@ class EventManager
 {
 public:
     EventManager() { }
-    EventManager(NetworkManager* networkManager, SharedQueue<Event*>& eventQueue, CheckpointList<PlayerComponent>& players, 
-                    CheckpointList<MotorComponent>& motors, CheckpointList<TransformComponent>& transforms);
+    EventManager(NetworkManager* networkManager, SharedQueue<Event*>& eventQueue, CheckpointList<PlayerComponent>& players,
+                CheckpointList<BankComponent>& banks,CheckpointList<MotorComponent>& motors, CheckpointList<TransformComponent>& transforms);
     ~EventManager();
     void Loop();
 private:
     void SwitchEvent();
     void Connect();
+    void Disconnect();
     void ReadyUp();
 private:
+    int m_playerPosition;
     Event* m_event;
     SharedQueue<Event*>* m_eventQueue;
 
    	CheckpointList<PlayerComponent>* m_players;
+    CheckpointList<BankComponent>* m_banks;
    	CheckpointList<MotorComponent>* m_motors;
 	CheckpointList<TransformComponent>* m_transforms;
 
