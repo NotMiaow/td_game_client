@@ -1,9 +1,9 @@
 #include "eventManager.h"
 
-EventManager::EventManager(NetworkManager* networkManager, SharedQueue<Event*>& eventQueue, CheckpointList<PlayerComponent>& players,
+void EventManager::Init(NetworkManager& networkManager, SharedQueue<Event*>& eventQueue, CheckpointList<PlayerComponent>& players,
                 CheckpointList<BankComponent>& banks,CheckpointList<MotorComponent>& motors, CheckpointList<TransformComponent>& transforms)
 {
-    m_networkManager = networkManager;
+    m_networkManager = &networkManager;
     m_eventQueue = &eventQueue;
 
     m_players = &players;

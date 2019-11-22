@@ -1,21 +1,42 @@
 #ifndef GAME_CLIENT_HPP
 #define GAME_CLIENT_HPP
 
+#include <string>
+
 //Godot
 #include <Godot.hpp>
 #include <Node.hpp>
+#include <Camera.hpp>
+#include <PhysicsDirectSpaceState.hpp>
 
-//Required
+#include "checkpointList.h"
+//Components
+#include "playerComponent.h"
+#include "bankComponent.h"
+#include "motorComponent.h"
+#include "transformComponent.h"
+#include "checkpointList.h"
+
+//Shared
 #include "shared_queue.h"
-#include "cst.h"
+#include "event.h"
+
+//Networking
 #include "action.h"
 #include "client.h"
+
+//Managers
 #include "networkManager.h"
+#include "eventManager.h"
+#include "inputManager.h"
+
+//Misc
+#include "cst.h"
 #include "ecs.h"
 
 namespace godot
 {
-class GameClient : public Node
+class GameClient : public Camera
 {
 	GODOT_CLASS(GameClient, Node)
 
@@ -24,10 +45,10 @@ public:
 	//Native
 	static void _register_methods();
 	void _init();
-	void Update(); //Main loop
+	void Update(Vector2 mousePos); //Main loop
 
 	//Init of game client
-	void InitGameClient(int serverPort);
+	void InitGameClient(int serverPort, Node* root);
 	void CleanUp();
 
 public:
@@ -37,14 +58,24 @@ public:
 	std::promise<void> m_exitSignal;
 	std::shared_future<void> m_futureObj;
 
+	//Shared resources
+	SharedQueue<Event *> m_eventQueue;
+
+	//Components	
+	CheckpointList<PlayerComponent> m_players;
+	CheckpointList<BankComponent> m_banks;
+	CheckpointList<MotorComponent> m_motors;
+	CheckpointList<TransformComponent> m_transforms;
+
 	//Networking
 	int m_serverPort;
 	Client m_client;
-	NetworkManager* m_networkManager;
+	NetworkManager m_networkManager;
 
-	//Game related
-	SharedQueue<Event *> m_eventQueue;
-	ECS* m_ecs;
+	EventManager m_eventManager;
+	InputManager m_inputManager;
+
+	ECS m_ecs;
 };
 } // namespace godot
 

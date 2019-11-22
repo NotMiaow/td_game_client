@@ -8,7 +8,8 @@
 #include <atomic>
 
 //Godot
-#include "Vector2.hpp"
+#include <Vector2.hpp>
+#include <Node.hpp>
 
 //Components
 #include "playerComponent.h"
@@ -21,39 +22,25 @@
 #include "timeSystem.h"
 #include "movementSystem.h"
 
-//Event Manager
-#include "queue.h"
-#include "event.h"
-#include "eventManager.h"
-
-//Network Manager
-#include "networkManager.h"
-
 class ECS
 {
 public:
 	ECS() {}
-	ECS(NetworkManager* networkmanager, SharedQueue<Event*>& eventQueue);
 	~ECS();
+	void Init(CheckpointList<PlayerComponent>& players, CheckpointList<BankComponent>& banks, CheckpointList<MotorComponent>& motors,
+		CheckpointList<TransformComponent>& transforms);
 	bool Loop();
 private:
 	void WaitForTerminate();
 private:
 	//Components
-	CheckpointList<PlayerComponent> m_players;
-	CheckpointList<BankComponent> m_banks;
-	CheckpointList<MotorComponent> m_motors;
-	CheckpointList<TransformComponent> m_transforms;
+	CheckpointList<PlayerComponent>* m_players;
+	CheckpointList<BankComponent>* m_banks;
+	CheckpointList<MotorComponent>* m_motors;
+	CheckpointList<TransformComponent>* m_transforms;
 	
-	//Systems
 	TimeSystem m_timeSystem;
 	MovementSystem m_movementSystem;
-	
-	//Event mang
-	EventManager m_eventManager;
-
-	//Networking
-	NetworkManager* m_networkManager;
 };
 
 

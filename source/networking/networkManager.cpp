@@ -1,6 +1,6 @@
 #include "networkManager.h"
 
-NetworkManager::NetworkManager(Client &client, std::shared_future<void> &&clientFuture, const int serverPort, SharedQueue<Event *> &eventQueue)
+void NetworkManager::Init(Client &client, std::shared_future<void> &&clientFuture, const int serverPort, SharedQueue<Event *> &eventQueue)
 {
 	m_clientFuture = clientFuture;
 	m_alive = true;

@@ -20,15 +20,13 @@ class MovementSystem
 {
 public:
 	MovementSystem();
-	MovementSystem(TimeSystem& timeSystem, CheckpointList<MotorComponent>& motors, CheckpointList<TransformComponent>& transforms);
+	MovementSystem(CheckpointList<MotorComponent>& motors, CheckpointList<TransformComponent>& transforms);
 	~MovementSystem();
 	void Loop();
 private:
 	void SwitchBehaviour(MotorComponent& motor, TransformComponent& transforms);
 	void MoveMotor(MotorComponent& motor, TransformComponent& transforms);
 private:
-	TimeSystem* m_timeSystem;
-
 	CheckpointList<MotorComponent>* m_motors;
 	CheckpointList<TransformComponent>* m_transforms;
 };

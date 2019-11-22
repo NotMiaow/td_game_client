@@ -1,13 +1,15 @@
 #include "ecs.h"
 
-ECS::ECS(NetworkManager* networkmanager, SharedQueue<Event*>& eventQueue)
+void ECS::Init(CheckpointList<PlayerComponent>& players, CheckpointList<BankComponent>& banks,CheckpointList<MotorComponent>& motors,
+        CheckpointList<TransformComponent>& transforms)
 {
-    //Event manager
-    m_eventManager = EventManager(networkmanager, eventQueue, m_players, m_banks, m_motors, m_transforms);
+    m_players = &players;
+    m_banks = &banks;
+    m_motors = &motors;
+    m_transforms = &transforms;
 
-    //Systems
     m_timeSystem = TimeSystem();
-    m_movementSystem = MovementSystem(m_timeSystem, m_motors, m_transforms);
+    m_movementSystem = MovementSystem(*m_motors, *m_transforms);
 }
 
 ECS::~ECS()
@@ -18,7 +20,6 @@ bool ECS::Loop()
 {
     m_timeSystem.Loop();
     m_movementSystem.Loop();
-    m_eventManager.Loop();
     
     //Kill server from within ecs
 //    return false;

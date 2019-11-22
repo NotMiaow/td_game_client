@@ -12,23 +12,29 @@ void GameClient::_init()
 {
 }
 
-void GameClient::InitGameClient(int serverPort)
+void GameClient::InitGameClient(int serverPort, Node* root)
 {
-	m_serverPort = serverPort;
-
+	//Termination of scene
 	m_alive = true;
 	m_futureObj = m_exitSignal.get_future();
 
+	//Networking
 	m_client.id = PLAYER_ID;
 	m_client.token = PLAYER_TOKEN;
-	m_eventQueue = SharedQueue<Event *>();
-	m_networkManager = new NetworkManager(m_client, std::move(m_futureObj), m_serverPort, m_eventQueue);
-	m_ecs = new ECS(m_networkManager, m_eventQueue);
+	m_serverPort = serverPort;
+	m_networkManager.Init(m_client, std::move(m_futureObj), m_serverPort, m_eventQueue);
+
+    m_eventManager.Init(m_networkManager, m_eventQueue, m_players, m_banks, m_motors, m_transforms);
+    m_inputManager.Init(root, m_eventQueue);
+
+	m_ecs.Init(m_players, m_banks, m_motors, m_transforms);
 }
 
-void GameClient::Update()
+void GameClient::Update(Vector2 mousePos)
 {
-	m_ecs->Loop();
+	m_ecs.Loop();
+	m_inputManager.Loop(mousePos);
+	m_eventManager.Loop();
 }
 
 void GameClient::CleanUp()

@@ -32,8 +32,8 @@ class NetworkManager
 {
 public:
 	NetworkManager() { }
-	NetworkManager(Client& client, std::shared_future<void> &&clientFuture, const int serverPort, SharedQueue<Event *>& eventQueue);
 	~NetworkManager();
+	void Init(Client& client, std::shared_future<void> &&clientFuture, const int serverPort, SharedQueue<Event *>& eventQueue);
 	bool SetUpClientEnvironment();
 	void TryConnect();
 	void ListenToServer();
