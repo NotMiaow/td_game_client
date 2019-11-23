@@ -7,6 +7,9 @@
 #include <future>
 #include <atomic>
 
+//Libraries
+#include "shared_queue.h"
+
 //Godot
 #include <Vector2.hpp>
 #include <Node.hpp>
@@ -19,8 +22,10 @@
 #include "checkpointList.h"
 
 //Systems
-#include "timeSystem.h"
 #include "movementSystem.h"
+
+//Misc
+#include "eventManager.h"
 
 class ECS
 {
@@ -29,7 +34,7 @@ public:
 	~ECS();
 	void Init(CheckpointList<PlayerComponent>& players, CheckpointList<BankComponent>& banks, CheckpointList<MotorComponent>& motors,
 		CheckpointList<TransformComponent>& transforms);
-	bool Loop();
+	bool Loop(const float deltaTime);
 private:
 	void WaitForTerminate();
 private:
@@ -39,8 +44,11 @@ private:
 	CheckpointList<MotorComponent>* m_motors;
 	CheckpointList<TransformComponent>* m_transforms;
 	
-	TimeSystem m_timeSystem;
+	//Systems
 	MovementSystem m_movementSystem;
+
+	//Event queue
+	SharedQueue<Event*>* m_eventQueue;
 };
 
 

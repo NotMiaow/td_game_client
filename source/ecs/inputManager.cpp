@@ -2,7 +2,6 @@
 
 using namespace godot;
 
-
 InputManager::~InputManager()
 {
 

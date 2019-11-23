@@ -4,9 +4,6 @@
 #include <iostream>
 #include <math.h>
 
-//Systems
-#include "timeSystem.h"
-
 //components
 #include "motorComponent.h"
 #include "transformComponent.h"
@@ -22,10 +19,10 @@ public:
 	MovementSystem();
 	MovementSystem(CheckpointList<MotorComponent>& motors, CheckpointList<TransformComponent>& transforms);
 	~MovementSystem();
-	void Loop();
+	void Loop(const float& deltaTime);
 private:
-	void SwitchBehaviour(MotorComponent& motor, TransformComponent& transforms);
-	void MoveMotor(MotorComponent& motor, TransformComponent& transforms);
+	void SwitchBehaviour(const float& deltaTime, MotorComponent& motor, TransformComponent& transforms);
+	void MoveMotor(const float& deltaTime, MotorComponent& motor, TransformComponent& transforms);
 private:
 	CheckpointList<MotorComponent>* m_motors;
 	CheckpointList<TransformComponent>* m_transforms;

@@ -8,7 +8,6 @@ void ECS::Init(CheckpointList<PlayerComponent>& players, CheckpointList<BankComp
     m_motors = &motors;
     m_transforms = &transforms;
 
-    m_timeSystem = TimeSystem();
     m_movementSystem = MovementSystem(*m_motors, *m_transforms);
 }
 
@@ -16,10 +15,9 @@ ECS::~ECS()
 {
 }
 
-bool ECS::Loop()
+bool ECS::Loop(const float deltaTime)
 {
-    m_timeSystem.Loop();
-    m_movementSystem.Loop();
+    m_movementSystem.Loop(deltaTime);
     
     //Kill server from within ecs
 //    return false;

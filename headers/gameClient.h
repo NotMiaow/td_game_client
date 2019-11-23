@@ -45,7 +45,7 @@ public:
 	//Native
 	static void _register_methods();
 	void _init();
-	void Update(Vector2 mousePos); //Main loop
+	void Update(const float deltaTime, Vector2 mousePos); //Main loop
 
 	//Init of game client
 	void InitGameClient(int serverPort, Node* root);

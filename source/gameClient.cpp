@@ -30,9 +30,9 @@ void GameClient::InitGameClient(int serverPort, Node* root)
 	m_ecs.Init(m_players, m_banks, m_motors, m_transforms);
 }
 
-void GameClient::Update(Vector2 mousePos)
+void GameClient::Update(const float deltaTime, Vector2 mousePos)
 {
-	m_ecs.Loop();
+	m_ecs.Loop(deltaTime);
 	m_inputManager.Loop(mousePos);
 	m_eventManager.Loop();
 }

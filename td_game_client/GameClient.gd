@@ -14,5 +14,5 @@ func _physics_process(delta):
 	var mouseToWorldPos = null
 	if hit:
 		mouseToWorldPos = Vector2(hit.position.x, hit.position.z)
-	gameClient.Update(mouseToWorldPos)
+	gameClient.Update(delta, mouseToWorldPos)
 	var a = delta
