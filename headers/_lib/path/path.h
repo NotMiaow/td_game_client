@@ -1,12 +1,15 @@
 #ifndef PATH_H__
 #define	PATH_H__
 
-#include "chain.h"
-#include "vector2.h"
+#include <Vector2.hpp>
+
+#include "queue.h"
+
+using namespace godot;
 
 struct Path
 {
-	Chain<Vector2>* path;
+	Queue<Vector2>* path;
 	int length;
 	int lastYDirection;
 	int lastXDirection;

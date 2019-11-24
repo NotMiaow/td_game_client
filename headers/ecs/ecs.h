@@ -32,8 +32,8 @@ class ECS
 public:
 	ECS() {}
 	~ECS();
-	void Init(CheckpointList<PlayerComponent>& players, CheckpointList<BankComponent>& banks, CheckpointList<MotorComponent>& motors,
-		CheckpointList<TransformComponent>& transforms);
+	void Init(CheckpointList<PlayerComponent>& players, CheckpointList<BankComponent>& banks, CheckpointList<OffenseComponent> offenses,
+		CheckpointList<MotorComponent>& motors,	CheckpointList<TransformComponent>& transforms);
 	bool Loop(const float deltaTime);
 private:
 	void WaitForTerminate();
@@ -41,6 +41,7 @@ private:
 	//Components
 	CheckpointList<PlayerComponent>* m_players;
 	CheckpointList<BankComponent>* m_banks;
+	CheckpointList<OffenseComponent>* m_offenses;
 	CheckpointList<MotorComponent>* m_motors;
 	CheckpointList<TransformComponent>* m_transforms;
 	

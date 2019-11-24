@@ -1,15 +1,22 @@
 #include "eventManager.h"
 
-void EventManager::Init(NetworkManager& networkManager, SharedQueue<Event*>& eventQueue, CheckpointList<PlayerComponent>& players,
-                CheckpointList<BankComponent>& banks,CheckpointList<MotorComponent>& motors, CheckpointList<TransformComponent>& transforms)
+void EventManager::Init(Node* root, NetworkManager& networkManager, SharedQueue<Event*>& eventQueue, CheckpointList<PlayerComponent>& players,
+                CheckpointList<BankComponent>& banks, CheckpointList<OffenseComponent>& offenses, CheckpointList<MotorComponent>& motors,
+                CheckpointList<TransformComponent>& transforms)
 {
     m_networkManager = &networkManager;
     m_eventQueue = &eventQueue;
 
     m_players = &players;
     m_banks = &banks;
+    m_offenses = &offenses;
     m_motors = &motors;
     m_transforms = &transforms;
+
+    m_root = root;
+    m_towers = root->find_node(String("towers"));
+    m_unitGroups = root->find_node(String("projectiles"));
+    m_projectiles = root->find_node(String("unit_groups"));
 }
 
 EventManager::~EventManager()
@@ -50,6 +57,7 @@ void EventManager::SwitchEvent()
     case ERage:
         break;
     case EBuildTower:
+        BuildTower();
         break;
     case ESellTower:
         break;
@@ -77,12 +85,43 @@ void EventManager::ReadyUp()
     m_playerPosition = event->playerPosition;
 
     //Set player statuses
-    CheckpointList<PlayerComponent>::Node<PlayerComponent>* pit = m_players->GetNodeHead();
-    for(std::vector<PlayerComponent>::iterator event_pit = event->players->begin(); event_pit != event->players->end(); event_pit++)
-        pit = m_players->InsertAfterNode(*event_pit, pit);
-
+    {
+        TabNode<PlayerComponent>* tabIt = m_players->GetTabHead();
+        for(std::vector<PlayerComponent>::iterator player = event->players->begin(); player != event->players->end(); player++, tabIt = m_players->GetNextTab(&*tabIt))
+            m_players->InsertNode(*player, tabIt->checkpointNode);
+    }
     //Set bank statuses
-    CheckpointList<BankComponent>::Node<BankComponent>* bit = m_banks->GetNodeHead();
-    for(std::vector<BankComponent>::iterator event_bit = event->banks->begin(); event_bit != event->banks->end(); event_bit++)
-        bit = m_banks->InsertAfterNode(*event_bit, bit);
+    {
+        TabNode<BankComponent>* tabIt = m_banks->GetTabHead();
+        for(std::vector<BankComponent>::iterator bank = event->banks->begin(); bank != event->banks->end(); bank++, tabIt = m_banks->GetNextTab(&*tabIt))
+            m_banks->InsertNode(*bank, tabIt->checkpointNode);
+    }
+}
+
+void EventManager::BuildTower()
+{
+    BuildTowerEvent* event = dynamic_cast<BuildTowerEvent*>(m_event);
+
+    //Instantiate tower scene (RigidBody) in root node
+    ResourceLoader* ressourceLoader = ResourceLoader::get_singleton();
+    Ref<PackedScene> packedScene = ressourceLoader->load("res://tower.tscn");
+    RigidBody* tower = (RigidBody*)packedScene->instance();
+    if(m_towers->get_child_count() == 0)
+        m_towers->add_child(tower);
+    else
+        m_towers->add_child_below_node(m_towers->get_child(0), tower);
+    
+    //Set tower's transform
+    const Vector3 towerPosition(event->position.x + 0.5f, tower->get_transform().get_origin().y, event->position.y + 0.5f);
+    Transform transform;
+    transform.set_origin(towerPosition);
+    tower->set_global_transform(transform);
+    
+    CheckpointNode<TransformComponent>* checkIt = m_transforms->GetTabHead()->checkpointNode;
+    for(int i = 0; i < T_TOWER; i++)
+        checkIt = m_transforms->GetNextCheckpoint(&*checkIt);
+
+    TransformComponent transformComponent;
+    transformComponent.position = Vector2(event->position.x, event->position.y);
+    m_transforms->InsertNode(transformComponent, checkIt);
 }

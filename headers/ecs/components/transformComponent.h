@@ -2,12 +2,13 @@
 #define TRANSFORM_COMPONENT_H__
 
 //Godot includes
-#include "Vector2.hpp"
+#include <Vector2.hpp>
+
+using namespace godot;
 
 struct TransformComponent
 {
-    godot::Vector2 position;
-    godot::Vector2 normalizedTarget;
+    Vector2 position;
     //Vector3 scale;
 };
 

@@ -18,8 +18,8 @@ MovementSystem::~MovementSystem()
 
 void MovementSystem::Loop(const float& deltaTime)
 {
-	CheckpointList<MotorComponent>::Node<MotorComponent>* mNode = m_motors->GetNodeHead();
-	CheckpointList<TransformComponent>::Node<TransformComponent>* tNode = m_transforms->GetNodeHead();
+	DataNode<MotorComponent>* mNode = m_motors->GetNodeHead();
+	DataNode<TransformComponent>* tNode = m_transforms->GetNodeHead();
 	while (mNode != NULL)
 	{
 		SwitchBehaviour(deltaTime, mNode->data, tNode->data);
@@ -50,27 +50,27 @@ void MovementSystem::SwitchBehaviour(const float& deltaTime, MotorComponent& mot
 void MovementSystem::MoveMotor(const float& deltaTime, MotorComponent& motor, TransformComponent& transform)
 {
 	//Translate motor
-	transform.position.x += transform.normalizedTarget.x * motor.curSpeed * deltaTime;
-	transform.position.y += transform.normalizedTarget.y * motor.curSpeed * deltaTime;
+	transform.position.x += motor.normalizedTarget.x * motor.curSpeed * deltaTime;
+	transform.position.y += motor.normalizedTarget.y * motor.curSpeed * deltaTime;
 
 	//If passed target
-	if (transform.normalizedTarget.x > 0 && transform.position.x >= motor.path.GetHead()->data.x ||
-		transform.normalizedTarget.x < 0 && transform.position.x <= motor.path.GetHead()->data.x)
+	if (motor.normalizedTarget.x > 0 && transform.position.x >= motor.path.Front().x ||
+		motor.normalizedTarget.x < 0 && transform.position.x <= motor.path.Front().x)
 	{
 		//Set position as target's position
-		transform.position.x = motor.path.GetHead()->data.x;
-		transform.position.y = motor.path.GetHead()->data.y;
+		transform.position.x = motor.path.Front().x;
+		transform.position.y = motor.path.Front().y;
 		//Remove target from motor's path
-		motor.path.RemoveHead();
+		motor.path.Pop();
 
 		//Update normalised target
 		if(motor.path.GetSize() > 0)
 		{
-			float distanceX = motor.path.GetHead()->data.x - transform.position.x;
-			float distanceY = motor.path.GetHead()->data.y - transform.position.y;
+			float distanceX = motor.path.Front().x - transform.position.x;
+			float distanceY = motor.path.Front().y - transform.position.y;
 			float distance = sqrt(pow(distanceX, 2) + pow(distanceY, 2));
-			transform.normalizedTarget.x = distanceX / distance;
-			transform.normalizedTarget.y = distanceY / distance;
+			motor.normalizedTarget.x = distanceX / distance;
+			motor.normalizedTarget.y = distanceY / distance;
 		}
 	}
 }

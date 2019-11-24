@@ -13,6 +13,7 @@
 //Components
 #include "playerComponent.h"
 #include "bankComponent.h"
+#include "offenseComponent.h"
 #include "motorComponent.h"
 #include "transformComponent.h"
 #include "checkpointList.h"
@@ -49,7 +50,7 @@ public:
 
 	//Init of game client
 	void InitGameClient(int serverPort, Node* root);
-	void CleanUp();
+	void InitialiseComponentDataStructure();
 
 public:
 	//Terminate
@@ -64,6 +65,7 @@ public:
 	//Components	
 	CheckpointList<PlayerComponent> m_players;
 	CheckpointList<BankComponent> m_banks;
+	CheckpointList<OffenseComponent> m_offenses;
 	CheckpointList<MotorComponent> m_motors;
 	CheckpointList<TransformComponent> m_transforms;
 

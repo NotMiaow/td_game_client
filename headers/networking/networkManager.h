@@ -35,9 +35,11 @@ public:
 	~NetworkManager();
 	void Init(Client& client, std::shared_future<void> &&clientFuture, const int serverPort, SharedQueue<Event *>& eventQueue);
 	bool SetUpClientEnvironment();
+private:
 	void TryConnect();
 	void ListenToServer();
 	void WaitForTerminate();
+public:
 	void SendEvent(const std::string& event);
 
 private:

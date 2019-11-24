@@ -60,6 +60,7 @@ struct ConnectEvent : public Event
 
 struct DisconnectEvent : public Event
 {
+	DisconnectEvent() { }
 	DisconnectEvent(DisconnectReason reason)
 	{
 		this->reason = reason;
@@ -135,9 +136,9 @@ struct RageEvent : public Event
 
 struct BuildTowerEvent : public Event
 {
+	BuildTowerEvent() { }
 	BuildTowerEvent(const int& towerType, const godot::Vector2& position)
 	{
-
 		this->clientId = clientId;
 		this->towerType = towerType;
 		this->position = position;
@@ -156,6 +157,7 @@ struct BuildTowerEvent : public Event
 
 struct SellTowerEvent : public Event
 {
+	SellTowerEvent() { }
 	SellTowerEvent(const int& towerPosition)
 	{
 
@@ -176,6 +178,7 @@ struct SellTowerEvent : public Event
 
 struct SendUnitGroupEvent : public Event
 {
+	SendUnitGroupEvent() { }
 	SendUnitGroupEvent(const int& unitType)
 	{
 		this->clientId = clientId;
