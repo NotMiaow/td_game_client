@@ -67,17 +67,20 @@ static Event *CreateReadyUpEvent(std::vector<std::string> elements)
 
 static Event *CreateBuildTowerEvent(std::vector<std::string> elements)
 {
+	int remainingGold;
 	int towerType;
 	godot::Vector2 position;
 
-	if (elements.size() != 2)
+	if (elements.size() != 3)
 		return CreateErrorEvent(EBuildTower, GEWrongParemeterAmount);
-	if (!ToInt(elements[0], towerType))
+	if (!ToInt(elements[0], remainingGold))
 		return CreateErrorEvent(EBuildTower, GEWrongParameterType);
-	if (!ToPosition(elements[1], position))
+	if (!ToInt(elements[1], towerType))
+		return CreateErrorEvent(EBuildTower, GEWrongParameterType);
+	if (!ToPosition(elements[2], position))
 		return CreateErrorEvent(EBuildTower, GEWrongParameterType);
 
-	Event *e = new BuildTowerEvent(towerType, position);
+	Event *e = new BuildTowerEvent(remainingGold, towerType, position);
 	return e;
 }
 

@@ -64,6 +64,7 @@ void NetworkManager::TryConnect()
 				connectAction.clientId = m_client.id;
 				connectAction.sessionToken = m_client.token;
 				std::string message = connectAction.ToNetworkable().c_str();
+				message = std::to_string(message.length()) + message;
 				send(m_clientSocket, message.c_str(), message.length(), 0);
 			}
 		}
@@ -73,15 +74,44 @@ void NetworkManager::TryConnect()
 void NetworkManager::ListenToServer()
 {
 	int iResult;
-	char recvbuf[DEFAULT_BUFLEN];
-	int recvbuflen = DEFAULT_BUFLEN;
+	char recvbuf[BUFFER_LENGTH];
+	int recvbuflen = BUFFER_LENGTH;
+	std::string message = "";
+	int messageLength = 0;
 	while (m_alive && m_connected)
 	{
 		iResult = read(m_clientSocket, recvbuf, recvbuflen);
 		if (iResult > 0)
 		{
-			Event *event = CreateGameEvent(Split(recvbuf, iResult));
- 			m_eventQueue->Push(event);
+			//Convert to string
+			for(int i = 0; i < iResult; i++)
+				message += recvbuf[i];
+			
+			//Get message length if not already
+			if(messageLength == 0)
+			{
+				messageLength = GetMessageLength(message);
+				if(messageLength == 0)
+				{
+					m_connected = false;
+					continue;
+				}
+			}
+			//Done receiving
+			if(message.length() == messageLength)
+			{
+				Event *event = CreateGameEvent(Split(message, message.length()));
+	 			m_eventQueue->Push(event);
+				message = "";
+				messageLength = 0;
+			}
+			//Error
+			else if(message.length() > messageLength)
+			{
+				m_connected = false;
+				message = "";
+				messageLength = 0;
+			}
  		}
 		else
 		{
@@ -90,6 +120,20 @@ void NetworkManager::ListenToServer()
 			std::this_thread::sleep_for(std::chrono::milliseconds(RECONNECTION_ATTEMPT_DELAY));
 		}
 	}
+}
+
+int NetworkManager::GetMessageLength(std::string& cutMessage)
+{
+	int iMessageLength = 0;
+	std::string sMessageLength = "";
+	int pos = cutMessage.find('{');
+	if(pos != std::string::npos)
+	{
+		sMessageLength = cutMessage.substr(0,pos);
+		iMessageLength = std::stoi(sMessageLength);
+		cutMessage = cutMessage.substr(pos);
+	}
+	return iMessageLength;
 }
 
 void NetworkManager::SendEvent(const std::string &event)
@@ -101,7 +145,33 @@ void NetworkManager::SendEvent(const std::string &event)
 		gameAction.sessionToken = m_client.token;
 		gameAction.gameEvent = event;
 		std::string message = gameAction.ToNetworkable();
-		send(m_clientSocket, message.c_str(), message.length(), 0);
+		message = std::to_string(message.length()) + message;
+
+
+		std::string cutMessage;
+		int i;
+		for(i = 0; i + BUFFER_LENGTH < message.length(); i += BUFFER_LENGTH)
+		{
+			cutMessage = message.substr(i, BUFFER_LENGTH);
+			if(!SendString(cutMessage))
+				return;
+		}	
+		if(i < message.length())
+		{
+			cutMessage = message.substr(i);
+			if(!SendString(cutMessage))
+				return;
+		}	
+	}
+}
+
+bool NetworkManager::SendString(const std::string& cutMessage)
+{
+	int iResult = send(m_clientSocket, cutMessage.c_str(), (int)cutMessage.length(), 0);
+	if(iResult <= 0)
+	{
+		m_connected = false;
+		return false;
 	}
 }
 

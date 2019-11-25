@@ -46,3 +46,5 @@ script = ExtResource( 1 )
 [node name="unit_groups" type="Node" parent="."]
 
 [node name="projectiles" type="Node" parent="."]
+
+[node name="tower_placeholder" type="Node" parent="."]

@@ -1,9 +1,11 @@
 #include "eventManager.h"
 
-void EventManager::Init(Node* root, NetworkManager& networkManager, SharedQueue<Event*>& eventQueue, CheckpointList<PlayerComponent>& players,
+void EventManager::Init(Node* root, int& playerPosition, NetworkManager& networkManager, SharedQueue<Event*>& eventQueue, CheckpointList<PlayerComponent>& players,
                 CheckpointList<BankComponent>& banks, CheckpointList<OffenseComponent>& offenses, CheckpointList<MotorComponent>& motors,
                 CheckpointList<TransformComponent>& transforms)
 {
+    m_playerPosition = &playerPosition;
+    
     m_networkManager = &networkManager;
     m_eventQueue = &eventQueue;
 
@@ -12,6 +14,17 @@ void EventManager::Init(Node* root, NetworkManager& networkManager, SharedQueue<
     m_offenses = &offenses;
     m_motors = &motors;
     m_transforms = &transforms;
+
+    {
+        TabNode<BankComponent>* tabIt;
+        for(tabIt = m_banks->GetTabHead(); tabIt; tabIt = m_banks->GetNextTab(&*tabIt))
+        {
+            BankComponent bank;
+            bank.gold = 0;
+            bank.income = 0;
+            m_banks->InsertNode(bank, tabIt->checkpointNode);
+        }
+    }
 
     m_root = root;
     m_towers = root->find_node(String("towers"));
@@ -29,7 +42,7 @@ void EventManager::Loop()
    while (m_eventQueue->GetSize())
     {
         m_event = m_eventQueue->Pop();
-		godot::Godot::print(m_event->ToNetworkable().c_str());
+		Godot::print(m_event->ToNetworkable().c_str());
         if(m_event != 0) SwitchEvent();
         delete m_event;
     }
@@ -82,7 +95,7 @@ void EventManager::Disconnect()
 void EventManager::ReadyUp()
 {
     ReadyUpEvent* event = dynamic_cast<ReadyUpEvent*>(m_event);
-    m_playerPosition = event->playerPosition;
+    *m_playerPosition = event->playerPosition;
 
     //Set player statuses
     {
@@ -94,7 +107,7 @@ void EventManager::ReadyUp()
     {
         TabNode<BankComponent>* tabIt = m_banks->GetTabHead();
         for(std::vector<BankComponent>::iterator bank = event->banks->begin(); bank != event->banks->end(); bank++, tabIt = m_banks->GetNextTab(&*tabIt))
-            m_banks->InsertNode(*bank, tabIt->checkpointNode);
+            tabIt->checkpointNode->node->data = *bank;
     }
 }
 
@@ -102,7 +115,12 @@ void EventManager::BuildTower()
 {
     BuildTowerEvent* event = dynamic_cast<BuildTowerEvent*>(m_event);
 
-    //Instantiate tower scene (RigidBody) in root node
+    //Set remaining gold
+    DataNode<BankComponent>* bankIt = m_banks->GetNodeHead();
+    for(int i = 0; i < *m_playerPosition; i++, bankIt = m_banks->GetNextNode(&*bankIt));
+    bankIt->data.gold = event->remainingGold;    
+
+    //Instantiate tower
     ResourceLoader* ressourceLoader = ResourceLoader::get_singleton();
     Ref<PackedScene> packedScene = ressourceLoader->load("res://tower.tscn");
     RigidBody* tower = (RigidBody*)packedScene->instance();
@@ -111,15 +129,15 @@ void EventManager::BuildTower()
     else
         m_towers->add_child_below_node(m_towers->get_child(0), tower);
     
-    //Set tower's transform
+    //Move tower to position
     const Vector3 towerPosition(event->position.x + 0.5f, tower->get_transform().get_origin().y, event->position.y + 0.5f);
     Transform transform;
     transform.set_origin(towerPosition);
     tower->set_global_transform(transform);
     
+    //Store data
     CheckpointNode<TransformComponent>* checkIt = m_transforms->GetTabHead()->checkpointNode;
-    for(int i = 0; i < T_TOWER; i++)
-        checkIt = m_transforms->GetNextCheckpoint(&*checkIt);
+    for(int i = 0; i < T_TOWER; i++, checkIt = m_transforms->GetNextCheckpoint(&*checkIt));
 
     TransformComponent transformComponent;
     transformComponent.position = Vector2(event->position.x, event->position.y);

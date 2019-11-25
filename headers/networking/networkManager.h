@@ -26,7 +26,7 @@
 #include "cst.h"
 #include "client.h"
 
-#define DEFAULT_BUFLEN 512
+using namespace godot;
 
 class NetworkManager
 {
@@ -34,14 +34,14 @@ public:
 	NetworkManager() { }
 	~NetworkManager();
 	void Init(Client& client, std::shared_future<void> &&clientFuture, const int serverPort, SharedQueue<Event *>& eventQueue);
-	bool SetUpClientEnvironment();
+	void SendEvent(const std::string& event);
 private:
+	bool SetUpClientEnvironment();
 	void TryConnect();
 	void ListenToServer();
+	int GetMessageLength(std::string& cutMessage);
+	bool SendString(const std::string& cutMessage);
 	void WaitForTerminate();
-public:
-	void SendEvent(const std::string& event);
-
 private:
 	//Terminating
 	std::shared_future<void> m_clientFuture;

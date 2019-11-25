@@ -137,9 +137,10 @@ struct RageEvent : public Event
 struct BuildTowerEvent : public Event
 {
 	BuildTowerEvent() { }
-	BuildTowerEvent(const int& towerType, const godot::Vector2& position)
+	BuildTowerEvent(const int& remainingGold, const int& towerType, const godot::Vector2& position)
 	{
 		this->clientId = clientId;
+		this->remainingGold = remainingGold;
 		this->towerType = towerType;
 		this->position = position;
 	}
@@ -151,6 +152,7 @@ struct BuildTowerEvent : public Event
 		return os.str();
 	}
 
+	int remainingGold;
 	int towerType;
 	godot::Vector2 position;
 };

@@ -21,13 +21,14 @@ void GameClient::InitGameClient(int serverPort, Node* root)
 	//Networking
 	m_client.id = PLAYER_ID;
 	m_client.token = PLAYER_TOKEN;
+	m_playerPosition = -1;
 	m_serverPort = serverPort;
 	m_networkManager.Init(m_client, std::move(m_futureObj), m_serverPort, m_eventQueue);
 
 	InitialiseComponentDataStructure();
 
-    m_eventManager.Init(root, m_networkManager, m_eventQueue, m_players, m_banks, m_offenses, m_motors, m_transforms);
-    m_inputManager.Init(root, m_networkManager, m_transforms);
+    m_eventManager.Init(root, m_playerPosition, m_networkManager, m_eventQueue, m_players, m_banks, m_offenses, m_motors, m_transforms);
+    m_inputManager.Init(root, m_playerPosition, m_networkManager, m_banks, m_transforms);
 
 	m_ecs.Init(m_players, m_banks, m_offenses, m_motors, m_transforms);
 }

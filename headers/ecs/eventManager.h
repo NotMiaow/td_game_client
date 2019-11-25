@@ -45,7 +45,7 @@ class EventManager
 public:
     EventManager() { }
     ~EventManager();
-    void Init(Node* root, NetworkManager& networkManager, SharedQueue<Event*>& eventQueue, CheckpointList<PlayerComponent>& players,
+    void Init(Node* root, int& playerPosition, NetworkManager& networkManager, SharedQueue<Event*>& eventQueue, CheckpointList<PlayerComponent>& players,
                 CheckpointList<BankComponent>& banks, CheckpointList<OffenseComponent>& offenses, CheckpointList<MotorComponent>& motors,
                 CheckpointList<TransformComponent>& transforms);
     void Loop();
@@ -56,7 +56,7 @@ private:
     void ReadyUp();
     void BuildTower();
 private:
-    int m_playerPosition;
+    int* m_playerPosition;
     Event* m_event;
     SharedQueue<Event*>* m_eventQueue;
 

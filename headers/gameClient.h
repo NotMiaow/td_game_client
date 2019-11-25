@@ -71,6 +71,7 @@ public:
 
 	//Networking
 	int m_serverPort;
+	int m_playerPosition;
 	Client m_client;
 	NetworkManager m_networkManager;
 

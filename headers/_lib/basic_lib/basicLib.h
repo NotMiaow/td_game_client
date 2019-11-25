@@ -2,13 +2,14 @@
 #define BASIC_LIB_H__
 
 //Godot includes
-#include "Vector2.hpp"
+#include <Godot.hpp>
+#include <Vector2.hpp>
 
-#include <iostream>
 #include <cstdlib>
 #include <string>
 #include <vector>
 
+using namespace godot;
 
 static const char alphanum[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
@@ -20,7 +21,7 @@ static std::string generateToken(const int length) {
 	return token;
 }
 
-static std::vector<std::string> Split(char* buffer, int byteLen)
+static std::vector<std::string> Split(const char* buffer, const int& byteLen)
 {
 	std::vector<std::string> elements;
 	bool reachedSubItem = false;
