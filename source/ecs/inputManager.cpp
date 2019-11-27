@@ -67,9 +67,9 @@ void InputManager::DestroyTowerPlaceholder()
 
 bool InputManager::BuildTower(const Vector2& position)
 {
-    DataNode<BankComponent>* bankIt = m_banks->GetNodeHead();
-    for(int i = 0; i < *m_playerPosition; i++, bankIt = m_banks->GetNextNode(&*bankIt));
-    if(bankIt->data.gold >= TOWER_COSTS[0])
+    CheckpointList<BankComponent>::Iterator bankIt = m_banks->GetIterator(*m_playerPosition, PLAYER_BANKS);
+    
+    if(bankIt.Get()->gold >= TOWER_COSTS[0])
     {
         BuildTowerEvent buildTower;
         buildTower.position = position;
@@ -82,17 +82,10 @@ bool InputManager::BuildTower(const Vector2& position)
 
 bool InputManager::TowerExists(const Vector2& position)
 {
-    CheckpointNode<TransformComponent>* checkIt = m_transforms->GetTabHead()->checkpointNode;
-    for(int i = 0; i < T_TOWER; i++)
-        checkIt = m_transforms->GetNextCheckpoint(&*checkIt);
-
-    DataNode<TransformComponent>* nodeIt = checkIt->node;
-    while (nodeIt && nodeIt != checkIt->next->node)
-    {
-        if(nodeIt->data.position.x == position.x && nodeIt->data.position.y == position.y)
-            return true;
-        nodeIt = m_transforms->GetNextNode(&*nodeIt);
-    }
+    CheckpointList<TransformComponent>::Iterator transformIt = m_transforms->GetIterator(*m_playerPosition, TOWER_TRANSFORMS);
+    for(;!transformIt.End(); transformIt++)
+        if(transformIt.Get()->position.x == position.x && transformIt.Get()->position.y == position.y)
+           return true;
     return false;
 }
 

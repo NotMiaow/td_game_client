@@ -15,15 +15,12 @@ void EventManager::Init(Node* root, int& playerPosition, NetworkManager& network
     m_motors = &motors;
     m_transforms = &transforms;
 
+    for(int i = 0; i < MAX_CLIENTS; i++)
     {
-        TabNode<BankComponent>* tabIt;
-        for(tabIt = m_banks->GetTabHead(); tabIt; tabIt = m_banks->GetNextTab(&*tabIt))
-        {
-            BankComponent bank;
-            bank.gold = 0;
-            bank.income = 0;
-            m_banks->InsertNode(bank, tabIt->checkpointNode);
-        }
+        BankComponent bank;
+        bank.gold = 0;
+        bank.income = 0;
+        m_banks->InsertNode(bank, i, PLAYER_BANKS);
     }
 
     m_root = root;
@@ -98,16 +95,17 @@ void EventManager::ReadyUp()
     *m_playerPosition = event->playerPosition;
 
     //Set player statuses
-    {
-        TabNode<PlayerComponent>* tabIt = m_players->GetTabHead();
-        for(std::vector<PlayerComponent>::iterator player = event->players->begin(); player != event->players->end(); player++, tabIt = m_players->GetNextTab(&*tabIt))
-            m_players->InsertNode(*player, tabIt->checkpointNode);
-    }
+    std::vector<PlayerComponent>::iterator player = event->players->begin();
+    for(int i = 0; player != event->players->end(); i++, player++)
+        m_players->InsertNode(*player, i, PLAYER_PLAYERS);
     //Set bank statuses
+    CheckpointList<BankComponent>::Iterator bankIt(m_banks->GetNodeHead(), 0);
+    std::vector<BankComponent>::iterator bank = event->banks->begin();
+    for(int i = 0; bank != event->banks->end(); i++, bankIt++, bank++)
     {
-        TabNode<BankComponent>* tabIt = m_banks->GetTabHead();
-        for(std::vector<BankComponent>::iterator bank = event->banks->begin(); bank != event->banks->end(); bank++, tabIt = m_banks->GetNextTab(&*tabIt))
-            tabIt->checkpointNode->node->data = *bank;
+        BankComponent* bankComponent = bankIt.Get();
+        bankComponent->gold = (*bank).gold;
+        bankComponent->income = (*bank).income;
     }
 }
 
@@ -116,9 +114,13 @@ void EventManager::BuildTower()
     BuildTowerEvent* event = dynamic_cast<BuildTowerEvent*>(m_event);
 
     //Set remaining gold
-    DataNode<BankComponent>* bankIt = m_banks->GetNodeHead();
-    for(int i = 0; i < *m_playerPosition; i++, bankIt = m_banks->GetNextNode(&*bankIt));
-    bankIt->data.gold = event->remainingGold;    
+    CheckpointList<BankComponent>::Iterator bankIt = m_banks->GetIterator(*m_playerPosition, PLAYER_BANKS);
+    bankIt.Get()->gold = event->remainingGold;    
+
+    //Store data
+    TransformComponent transformComponent;
+    transformComponent.position = Vector2(event->position.x, event->position.y);
+    m_transforms->InsertNode(transformComponent, *m_playerPosition, TOWER_TRANSFORMS);
 
     //Instantiate tower
     ResourceLoader* ressourceLoader = ResourceLoader::get_singleton();
@@ -134,12 +136,4 @@ void EventManager::BuildTower()
     Transform transform;
     transform.set_origin(towerPosition);
     tower->set_global_transform(transform);
-    
-    //Store data
-    CheckpointNode<TransformComponent>* checkIt = m_transforms->GetTabHead()->checkpointNode;
-    for(int i = 0; i < T_TOWER; i++, checkIt = m_transforms->GetNextCheckpoint(&*checkIt));
-
-    TransformComponent transformComponent;
-    transformComponent.position = Vector2(event->position.x, event->position.y);
-    m_transforms->InsertNode(transformComponent, checkIt);
 }

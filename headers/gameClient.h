@@ -50,7 +50,6 @@ public:
 
 	//Init of game client
 	void InitGameClient(int serverPort, Node* root);
-	void InitialiseComponentDataStructure();
 
 public:
 	//Terminate

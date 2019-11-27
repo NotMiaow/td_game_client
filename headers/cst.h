@@ -19,8 +19,11 @@ const int RECONNECTION_ATTEMPT_DELAY = 4000;
 const int MAX_CLIENTS = 4;
 
 //ECS constants
-enum TransformsCheckpoint { T_TOWER = 0, T_UNIT_GROUP };
-enum OffensesCheckpoint { O_TOWER = 0, O_UNIT_GROUP };
+enum PlayerCheckpoints { PLAYER_PLAYERS = 0, PLAYER_CHECKPOINT_SIZE };
+enum BankCheckpoints { PLAYER_BANKS = 0, BANK_CHECKPOINT_SIZE };
+enum TransformsCheckpoint { UNIT_GROUP_TRANSFORMS = 0, TOWER_TRANSFORMS, TRANSFORM_CHECKPOINT_SIZE };
+enum MotorCheckpoints { UNIT_GROUP_MOTORS = 0, MOTOR_CHECKPOINT_SIZE };
+enum OffenseCheckpointss { UNIT_GROUP_OFFENSES = 0, TOWER_OFFENSES, OFFENSE_CHECKPOINT_SIZE };
 
 //Networking debugging needs
 const int PLAYER_ID = 45; //{ 45, 120, 645, 356 };
