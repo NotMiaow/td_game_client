@@ -36,12 +36,19 @@ void InputManager::Loop(const Vector2& mousePos)
             if(!TowerExists(floorTarget))
             {
                 MoveTowerPlaceholder(floorTarget);
-                if(Input::get_singleton()->is_action_just_released(String("mouse_1")) && BuildTower(floorTarget))
+                if(Input::get_singleton()->is_action_just_released(String("build_tower")) && BuildTower(floorTarget))
                     DestroyTowerPlaceholder();
             }
-            else DestroyTowerPlaceholder();                
+            else 
+            {
+                DestroyTowerPlaceholder();
+                if(Input::get_singleton()->is_action_just_released(String("sell_tower")))
+                    SellTower(floorTarget);
+            }
         }
     }
+    if(Input::get_singleton()->is_action_just_released(String("spawn_unit")))
+        SpawnUnit();
 }
 
 void InputManager::MoveTowerPlaceholder(const Vector2& position)
@@ -78,6 +85,25 @@ bool InputManager::BuildTower(const Vector2& position)
         return true;
     }
     return false;
+}
+
+void InputManager::SellTower(const Vector2& position)
+{
+    CheckpointList<TransformComponent>::Iterator transformIt = m_transforms->GetIterator(*m_playerPosition, TOWER_TRANSFORMS);
+    for(;!transformIt.End(); transformIt++)
+        if(transformIt.Get()->position.x == position.x && transformIt.Get()->position.y == position.y)
+        {
+            SellTowerEvent sellTowerEvent;
+            sellTowerEvent.towerPosition = position;
+            m_networkManager->SendEvent(sellTowerEvent.ToNetworkable());
+            break;
+        }
+}
+
+void InputManager::SpawnUnit()
+{
+    SpawnUnitGroupEvent spawnUnitGroupEvent;
+    m_networkManager->SendEvent(spawnUnitGroupEvent.ToNetworkable());
 }
 
 bool InputManager::TowerExists(const Vector2& position)

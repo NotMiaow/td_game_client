@@ -24,6 +24,8 @@
 #include "playerComponent.h"
 #include "bankComponent.h"
 
+using namespace godot;
+
 struct Event
 {
 	virtual EventType GetType() const = 0;
@@ -117,7 +119,7 @@ struct NewPathEvent : public Event
 	EventType GetType() const { return ENewPath; }
 
 	int motorPosition;
-	Queue<godot::Vector2>* path;
+	Queue<Vector2>* path;
 };
 
 struct RageEvent : public Event
@@ -137,7 +139,7 @@ struct RageEvent : public Event
 struct BuildTowerEvent : public Event
 {
 	BuildTowerEvent() { }
-	BuildTowerEvent(const int& remainingGold, const int& towerType, const godot::Vector2& position)
+	BuildTowerEvent(const int& remainingGold, const int& towerType, const Vector2& position)
 	{
 		this->clientId = clientId;
 		this->remainingGold = remainingGold;
@@ -154,28 +156,28 @@ struct BuildTowerEvent : public Event
 
 	int remainingGold;
 	int towerType;
-	godot::Vector2 position;
+	Vector2 position;
 };
 
 struct SellTowerEvent : public Event
 {
 	SellTowerEvent() { }
-	SellTowerEvent(const int& towerPosition)
+	SellTowerEvent(const Vector2& towerPosition, const int& remainingGold)
 	{
-
 		this->clientId = clientId;
 		this->towerPosition = towerPosition;
+		this->remainingGold = remainingGold;
 	}
 	EventType GetType() const { return ESellTower; }
 	std::string ToNetworkable() const
 	{
 		std::ostringstream os;
-		os << "{" << ESellTower << ";" << towerPosition << ";" << sellValue << "}";
+		os << "{" << ESellTower << ";(" << towerPosition.y << ":" << towerPosition.x << ")}";
 		return os.str();
 	}
 
-	int towerPosition;
-	int sellValue;
+	Vector2 towerPosition;
+	int remainingGold;
 };
 
 struct SendUnitGroupEvent : public Event

@@ -70,6 +70,7 @@ void EventManager::SwitchEvent()
         BuildTower();
         break;
     case ESellTower:
+        SellTower();
         break;
     case ESendUnitGroup:
         break;
@@ -136,4 +137,31 @@ void EventManager::BuildTower()
     Transform transform;
     transform.set_origin(towerPosition);
     tower->set_global_transform(transform);
+}
+
+void EventManager::SellTower()
+{
+    SellTowerEvent* event = dynamic_cast<SellTowerEvent*>(m_event);
+
+    //Set remaining gold
+    CheckpointList<BankComponent>::Iterator bankIt = m_banks->GetIterator(*m_playerPosition, PLAYER_BANKS);
+    bankIt.Get()->gold = event->remainingGold;    
+
+        //Find the requested tower's position within components
+    int towerPosition = 0;
+    CheckpointList<TransformComponent>::Iterator transformIt = m_transforms->GetIterator(*m_playerPosition, TOWER_TRANSFORMS);
+    for(;!transformIt.End(); towerPosition++, transformIt++)
+        if(transformIt.Get()->position.x == event->towerPosition.x && transformIt.Get()->position.y == event->towerPosition.y)
+            break;
+    
+    //If tower does not exist
+    if(transformIt.End())
+        return;
+
+    //Remove the tower
+    m_transforms->RemoveNode(towerPosition, *m_playerPosition, TOWER_TRANSFORMS);
+//    m_offenses->RemoveNode(towerPosition, *m_playerPosition, TOWER_OFFENSES);
+
+    //Destroy tower
+    m_towers->get_child(towerPosition)->queue_free();
 }

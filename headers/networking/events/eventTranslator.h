@@ -23,6 +23,8 @@
 #include "bankComponent.h"
 #include "playerComponent.h"
 
+using namespace godot;
+
 static Event *CreateErrorEvent(EventType aType, GameErrorType eType)
 {
 	Event *e = new ErrorEvent(aType, eType);
@@ -69,7 +71,7 @@ static Event *CreateBuildTowerEvent(std::vector<std::string> elements)
 {
 	int remainingGold;
 	int towerType;
-	godot::Vector2 position;
+	Vector2 position;
 
 	if (elements.size() != 3)
 		return CreateErrorEvent(EBuildTower, GEWrongParemeterAmount);
@@ -86,14 +88,17 @@ static Event *CreateBuildTowerEvent(std::vector<std::string> elements)
 
 static Event *CreateSellTowerEvent(std::vector<std::string> elements)
 {
-	int towerPosition;
+	Vector2 towerPosition;
+	int remainingGold;
 
-	if (elements.size() != 1)
+	if (elements.size() != 2)
 		return CreateErrorEvent(ESellTower, GEWrongParemeterAmount);
-	if (!ToInt(elements[0], towerPosition))
+	if (!ToPosition(elements[0], towerPosition))
+		return CreateErrorEvent(ESellTower, GEWrongParameterType);
+	if (!ToInt(elements[1], remainingGold))
 		return CreateErrorEvent(ESellTower, GEWrongParameterType);
 
-	Event *e = new SellTowerEvent(towerPosition);
+	Event *e = new SellTowerEvent(towerPosition, remainingGold);
 	return e;
 }
 

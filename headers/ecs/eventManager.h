@@ -55,6 +55,7 @@ private:
     void Disconnect();
     void ReadyUp();
     void BuildTower();
+    void SellTower();
 private:
     int* m_playerPosition;
     Event* m_event;

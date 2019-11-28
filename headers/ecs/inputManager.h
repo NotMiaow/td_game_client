@@ -44,6 +44,8 @@ private:
     void MoveTowerPlaceholder(const Vector2& position);
     void DestroyTowerPlaceholder();
     bool BuildTower(const Vector2& position);
+    void SellTower(const Vector2& position);
+    void SpawnUnit();
     bool TowerExists(const Vector2& position);
 private:
     int* m_playerPosition;
