@@ -41,7 +41,6 @@ private:
 	CheckpointNode<T>* InsertCheckpoint(CheckpointNode<T> *checkpointNode);
 	TabNode<T> *InsertTab(TabNode<T> *tabNode);
 	void Clear();
-
 private:
 	DataNode<T> *InsertNodeAfter(const T &data, DataNode<T> *node);
 
@@ -119,8 +118,8 @@ inline T* CheckpointList<T>::GetData(const int& index, const int& tabIndex, cons
 	for(int i = 0; i < checkpointIndex; i++, checkpointIt = checkpointIt->next);
 	//Get the requested node within requested checkpoint
 	DataNode<T>* nodeIt = checkpointIt->node;
-	for(int i = 0; i < index - 1; i++, nodeIt = nodeIt->next);
-	return &nodeIt->data;
+	for(int i = 0; nodeIt && i < index; i++, nodeIt = nodeIt->next);
+	return nodeIt ? &nodeIt->data : 0;
 }
 
 template <class T>
@@ -182,6 +181,7 @@ inline void CheckpointList<T>::RemoveNode(const int& index, const int& tabIndex,
 		nodeIt->next = nodeIt->next->next;
 		delete temp;
 		m_size--;
+		std::cout << "Removed (x,x,x)" << std::endl;
 	}
 }
 

@@ -32,7 +32,7 @@ class ECS
 public:
 	ECS() {}
 	~ECS();
-	void Init(CheckpointList<PlayerComponent>& players, CheckpointList<BankComponent>& banks, CheckpointList<OffenseComponent> offenses,
+	void Init(CheckpointList<PlayerComponent>& players, CheckpointList<BankComponent>& banks, CheckpointList<OffenseComponent>& offenses,
 		CheckpointList<MotorComponent>& motors,	CheckpointList<TransformComponent>& transforms);
 	bool Loop(const float deltaTime);
 private:

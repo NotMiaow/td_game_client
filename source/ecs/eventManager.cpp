@@ -118,9 +118,19 @@ void EventManager::BuildTower()
     CheckpointList<BankComponent>::Iterator bankIt = m_banks->GetIterator(*m_playerPosition, PLAYER_BANKS);
     bankIt.Get()->gold = event->remainingGold;    
 
-    //Store data
+    //Create tower's OffenseComponent
+    OffenseComponent offense;
+    offense.baseAttackRate = 1;
+    offense.baseDamage = 1;
+    offense.curAttackRate = offense.baseAttackRate;
+    offense.curDamage = offense.baseDamage;
+
+    //Create tower's TransformComponent
     TransformComponent transformComponent;
     transformComponent.position = Vector2(event->position.x, event->position.y);
+    
+    //Create tower
+    m_offenses->InsertNode(offense, *m_playerPosition, TOWER_OFFENSES);
     m_transforms->InsertNode(transformComponent, *m_playerPosition, TOWER_TRANSFORMS);
 
     //Instantiate tower
@@ -160,7 +170,7 @@ void EventManager::SellTower()
 
     //Remove the tower
     m_transforms->RemoveNode(towerPosition, *m_playerPosition, TOWER_TRANSFORMS);
-//    m_offenses->RemoveNode(towerPosition, *m_playerPosition, TOWER_OFFENSES);
+    m_offenses->RemoveNode(towerPosition, *m_playerPosition, TOWER_OFFENSES);
 
     //Destroy tower
     m_towers->get_child(towerPosition)->queue_free();
