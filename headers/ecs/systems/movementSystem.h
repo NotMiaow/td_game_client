@@ -3,6 +3,12 @@
 
 #include <iostream>
 #include <math.h>
+#include <queue>
+
+//Godot
+#include <Godot.hpp>
+#include <Node.hpp>
+#include <RigidBody.hpp>
 
 //components
 #include "motorComponent.h"
@@ -11,21 +17,22 @@
 //required
 #include "basicLib.h"
 #include "checkpointList.h"
-#include "queue.h"
 
 class MovementSystem
 {
 public:
 	MovementSystem();
-	MovementSystem(CheckpointList<MotorComponent>& motors, CheckpointList<TransformComponent>& transforms);
+	MovementSystem(Node* root, CheckpointList<MotorComponent>& motors, CheckpointList<TransformComponent>& transforms);
 	~MovementSystem();
 	void Loop(const float& deltaTime);
 private:
-	void SwitchBehaviour(const float& deltaTime, MotorComponent& motor, TransformComponent& transforms);
-	void MoveMotor(const float& deltaTime, MotorComponent& motor, TransformComponent& transforms);
+	void MoveMotor(const float& deltaTime, const int& index, MotorComponent& motor, TransformComponent& transforms);
 private:
 	CheckpointList<MotorComponent>* m_motors;
 	CheckpointList<TransformComponent>* m_transforms;
+
+    Node* m_unitGroups;
+    Node* m_projectiles;
 };
 
 #endif

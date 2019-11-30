@@ -23,6 +23,7 @@ void InputManager::Loop(const Vector2& mousePos)
 {
     int posX = floor(mousePos.x);
     int posY = floor(mousePos.y);
+
     const Vector2 floorTarget(posX, posY);
     if(Input::get_singleton()->is_action_just_released(String("build_mode")))
     {
@@ -31,7 +32,7 @@ void InputManager::Loop(const Vector2& mousePos)
     }
     if(m_buildMode)
     {
-        if(mousePos.x < GRID_SIZE_X && mousePos.x >= 0 && mousePos.y < GRID_SIZE_Y && mousePos.y >= 0)
+        if(mousePos.x < GRID_SIZE_X && mousePos.x > 0 && mousePos.y < GRID_SIZE_Y && mousePos.y > 0)
         {
             if(!TowerExists(floorTarget))
             {
@@ -46,6 +47,7 @@ void InputManager::Loop(const Vector2& mousePos)
                     SellTower(floorTarget);
             }
         }
+        else DestroyTowerPlaceholder();
     }
     if(Input::get_singleton()->is_action_just_released(String("spawn_unit")))
         SpawnUnit();
@@ -56,11 +58,11 @@ void InputManager::MoveTowerPlaceholder(const Vector2& position)
     if(m_towerPlaceholderParent->get_child_count() == 0)
     {
         ResourceLoader* ressourceLoader = ResourceLoader::get_singleton();
-        Ref<PackedScene> packedScene = ressourceLoader->load("res://towerPlaceholder.tscn");
+        Ref<PackedScene> packedScene = ressourceLoader->load("res://tower_ph.tscn");
         m_towerPlaceholder = (RigidBody*)packedScene->instance();
         m_towerPlaceholderParent->add_child(m_towerPlaceholder);
     }
-    const Vector3 towerPosition(position.x + 0.5f, m_towerPlaceholder->get_transform().get_origin().y, position.y + 0.5f);
+    const Vector3 towerPosition(position.x, m_towerPlaceholder->get_transform().get_origin().y, position.y);
     Transform transform;
     transform.set_origin(towerPosition);
     m_towerPlaceholder->set_global_transform(transform);

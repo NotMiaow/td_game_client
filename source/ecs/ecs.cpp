@@ -1,6 +1,6 @@
 #include "ecs.h"
 
-void ECS::Init(CheckpointList<PlayerComponent>& players, CheckpointList<BankComponent>& banks, CheckpointList<OffenseComponent>& offenses,
+void ECS::Init(Node* root, CheckpointList<PlayerComponent>& players, CheckpointList<BankComponent>& banks, CheckpointList<OffenseComponent>& offenses,
 		CheckpointList<MotorComponent>& motors,	CheckpointList<TransformComponent>& transforms)
 {
     m_players = &players;
@@ -9,7 +9,7 @@ void ECS::Init(CheckpointList<PlayerComponent>& players, CheckpointList<BankComp
     m_motors = &motors;
     m_transforms = &transforms;
 
-    m_movementSystem = MovementSystem(*m_motors, *m_transforms);
+    m_movementSystem = MovementSystem(root, *m_motors, *m_transforms);
 }
 
 ECS::~ECS()

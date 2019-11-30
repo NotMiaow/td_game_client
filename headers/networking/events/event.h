@@ -6,10 +6,10 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <queue>
 
 //Libraries
 #include "basicLib.h"
-#include "queue.h"
 #include "checkpointList.h"
 
 //Godot includes
@@ -119,7 +119,7 @@ struct NewPathEvent : public Event
 	EventType GetType() const { return ENewPath; }
 
 	int motorPosition;
-	Queue<Vector2>* path;
+	std::queue<Vector2>* path;
 };
 
 struct RageEvent : public Event

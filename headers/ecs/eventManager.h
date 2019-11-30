@@ -5,6 +5,7 @@
 #include <math.h>
 #include <string>
 #include <vector>
+#include <queue>
 
 //Godot
 #include <Godot.hpp>
@@ -16,7 +17,6 @@
 
 //Paths
 #include "Vector2.hpp"
-#include "queue.h"
 
 #include "dataNode.h"
 #include "checkpointNode.h"
@@ -54,8 +54,10 @@ private:
     void Connect();
     void Disconnect();
     void ReadyUp();
+    void SpawnUnitGroup();
     void BuildTower();
     void SellTower();
+    void Instantiate(std::string path, Vector2 position, Node* parent);
 private:
     int* m_playerPosition;
     Event* m_event;

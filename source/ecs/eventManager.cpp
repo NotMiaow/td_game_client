@@ -36,12 +36,12 @@ EventManager::~EventManager()
 
 void EventManager::Loop()
 {
-   while (m_eventQueue->GetSize())
+   while (m_eventQueue->size())
     {
-        m_event = m_eventQueue->Pop();
+        m_event = m_eventQueue->front();
 		Godot::print(m_event->ToNetworkable().c_str());
         if(m_event != 0) SwitchEvent();
-        delete m_event;
+        m_eventQueue->pop_front();
     }
 }
 
@@ -61,6 +61,7 @@ void EventManager::SwitchEvent()
         ReadyUp();
         break;
     case ESpawnUnitGroup:
+        SpawnUnitGroup();
         break;
     case ENewPath:
         break;
@@ -110,6 +111,41 @@ void EventManager::ReadyUp()
     }
 }
 
+void EventManager::SpawnUnitGroup()
+{
+    SpawnUnitGroupEvent* event = dynamic_cast<SpawnUnitGroupEvent*>(m_event);
+
+    //Create unit group's offense
+    OffenseComponent offense;
+    offense.baseAttackRate = 1;
+    offense.baseDamage = 1;
+    offense.curAttackRate = offense.baseAttackRate;
+    offense.curDamage = offense.baseDamage;
+
+    //Create unit group's transform
+    TransformComponent transform;
+    transform.position.x = SPAWN_POSITION_X;
+    transform.position.y = SPAWN_POSITION_Y;
+
+    //Create unit group's motor
+    MotorComponent motor;
+    std::queue<Vector2> path;
+    motor.path = path;
+    motor.behaviour = Move;
+    motor.baseSpeed = 2;
+    motor.curSpeed = 2;
+    motor.normalizedTarget.x = 0;
+    motor.normalizedTarget.y = 0;
+
+    //Create unit group
+    m_offenses->InsertNode(offense, *m_playerPosition, UNIT_GROUP_OFFENSES);
+    m_transforms->InsertNode(transform, *m_playerPosition, UNIT_GROUP_TRANSFORMS);
+    m_motors->InsertNode(motor, *m_playerPosition, UNIT_GROUP_MOTORS);
+
+    //Instantiate unit group
+    Instantiate("unit_group", Vector2(SPAWN_POSITION_X, SPAWN_POSITION_Y), m_unitGroups);
+}
+
 void EventManager::BuildTower()
 {
     BuildTowerEvent* event = dynamic_cast<BuildTowerEvent*>(m_event);
@@ -134,19 +170,7 @@ void EventManager::BuildTower()
     m_transforms->InsertNode(transformComponent, *m_playerPosition, TOWER_TRANSFORMS);
 
     //Instantiate tower
-    ResourceLoader* ressourceLoader = ResourceLoader::get_singleton();
-    Ref<PackedScene> packedScene = ressourceLoader->load("res://tower.tscn");
-    RigidBody* tower = (RigidBody*)packedScene->instance();
-    if(m_towers->get_child_count() == 0)
-        m_towers->add_child(tower);
-    else
-        m_towers->add_child_below_node(m_towers->get_child(0), tower);
-    
-    //Move tower to position
-    const Vector3 towerPosition(event->position.x + 0.5f, tower->get_transform().get_origin().y, event->position.y + 0.5f);
-    Transform transform;
-    transform.set_origin(towerPosition);
-    tower->set_global_transform(transform);
+    Instantiate("tower", event->position, m_towers);
 }
 
 void EventManager::SellTower()
@@ -174,4 +198,22 @@ void EventManager::SellTower()
 
     //Destroy tower
     m_towers->get_child(towerPosition)->queue_free();
+}
+
+void EventManager::Instantiate(std::string sceneName, Vector2 position, Node* parent)
+{
+    //Instantiate unit group
+    ResourceLoader* ressourceLoader = ResourceLoader::get_singleton();
+    Ref<PackedScene> packedScene = ressourceLoader->load(std::string("res://" + sceneName + ".tscn").c_str());
+    RigidBody* scene = (RigidBody*)packedScene->instance();
+    if(parent->get_child_count() == 0)
+        parent->add_child(scene);
+    else
+        parent->add_child_below_node(parent->get_child(0), scene);
+
+    //Move tower to position
+    const Vector3 realPosition(position.x, scene->get_transform().get_origin().y, position.y);
+    Transform transform;
+    transform.set_origin(realPosition);
+    scene->set_global_transform(transform);
 }

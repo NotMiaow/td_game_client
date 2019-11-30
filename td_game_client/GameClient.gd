@@ -10,9 +10,9 @@ func _physics_process(delta):
 	var mousePos = get_viewport().get_mouse_position()
 	var origin = self.project_ray_origin(mousePos)
 	var worldPos = origin + project_ray_normal(mousePos) * 20
-	var hit = space_state.intersect_ray(origin, worldPos)
+	var hit = space_state.intersect_ray(origin, worldPos, [self], 1)
 	var mouseToWorldPos = null
 	if hit:
-		mouseToWorldPos = Vector2(hit.position.x, hit.position.z)
+		mouseToWorldPos = Vector2(hit.position.x + 0.5, hit.position.z + 0.5)
 	gameClient.Update(delta, mouseToWorldPos)
 	var a = delta

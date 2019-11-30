@@ -3,20 +3,20 @@
 
 #include <string>
 
-//Engine constants
+//Game
+const int MAX_CLIENTS = 4;
 enum Behaviour { Move, Rage, Despawn };
 const int MAX_GROUPS_ON_GRID = 9;
 const int SPAWN_SIZE = 4;
 const int GRID_SIZE_X = 11;
 const int GRID_SIZE_Y = 11;
 const int DESPAWN_SIZE = 4;
+const int SPAWN_POSITION_Y = -4;
+const int SPAWN_POSITION_X = 5;
 
 //Networking
 const int BUFFER_LENGTH = 512;
 const int RECONNECTION_ATTEMPT_DELAY = 4000;
-
-//Game
-const int MAX_CLIENTS = 4;
 
 //ECS constants
 enum PlayerCheckpoints { PLAYER_PLAYERS = 0, PLAYER_CHECKPOINT_SIZE };

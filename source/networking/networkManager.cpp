@@ -101,7 +101,7 @@ void NetworkManager::ListenToServer()
 			if(message.length() == messageLength)
 			{
 				Event *event = CreateGameEvent(Split(message, message.length()));
-	 			m_eventQueue->Push(event);
+	 			m_eventQueue->push_back(event);
 				message = "";
 				messageLength = 0;
 			}

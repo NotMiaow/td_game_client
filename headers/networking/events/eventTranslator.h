@@ -43,7 +43,7 @@ static Event *CreateDisconnectEvent(DisconnectReason reason = RKicked)
 	return e;
 }
 
-static Event *CreateReadyUpEvent(std::vector<std::string> elements)
+static Event *CreateReadyUpEvent(const std::vector<std::string>& elements)
 {
 	int playerPosition;
 	PlayerComponent player;
@@ -67,7 +67,13 @@ static Event *CreateReadyUpEvent(std::vector<std::string> elements)
 	return e;
 }
 
-static Event *CreateBuildTowerEvent(std::vector<std::string> elements)
+static Event* CreateSpawnUnitGroupEvent()
+{
+	Event* e = new SpawnUnitGroupEvent();
+	return e;
+}
+
+static Event *CreateBuildTowerEvent(const std::vector<std::string>& elements)
 {
 	int remainingGold;
 	int towerType;
@@ -86,7 +92,7 @@ static Event *CreateBuildTowerEvent(std::vector<std::string> elements)
 	return e;
 }
 
-static Event *CreateSellTowerEvent(std::vector<std::string> elements)
+static Event *CreateSellTowerEvent(const std::vector<std::string>& elements)
 {
 	Vector2 towerPosition;
 	int remainingGold;
@@ -102,7 +108,7 @@ static Event *CreateSellTowerEvent(std::vector<std::string> elements)
 	return e;
 }
 
-static Event *CreateSendUnitGroupEvent(std::vector<std::string> elements)
+static Event *CreateSendUnitGroupEvent(const std::vector<std::string>& elements)
 {
 	int unitType;
 
@@ -133,8 +139,7 @@ static Event *CreateGameEvent(std::vector<std::string> elements)
 		case EReadyUp:
 			return CreateReadyUpEvent(elements);
 		case ESpawnUnitGroup:
-			return CreateSendUnitGroupEvent(elements);
-			break;
+			return CreateSpawnUnitGroupEvent();
 		case ENewPath:
 			//readonly
 			break;

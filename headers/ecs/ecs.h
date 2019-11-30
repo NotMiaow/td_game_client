@@ -11,6 +11,7 @@
 #include "shared_queue.h"
 
 //Godot
+#include <Godot.hpp>
 #include <Vector2.hpp>
 #include <Node.hpp>
 
@@ -27,13 +28,15 @@
 //Misc
 #include "eventManager.h"
 
+using namespace godot;
+
 class ECS
 {
 public:
 	ECS() {}
 	~ECS();
-	void Init(CheckpointList<PlayerComponent>& players, CheckpointList<BankComponent>& banks, CheckpointList<OffenseComponent>& offenses,
-		CheckpointList<MotorComponent>& motors,	CheckpointList<TransformComponent>& transforms);
+	void Init(Node* root, CheckpointList<PlayerComponent>& players, CheckpointList<BankComponent>& banks,
+	CheckpointList<OffenseComponent>& offenses, CheckpointList<MotorComponent>& motors,	CheckpointList<TransformComponent>& transforms);
 	bool Loop(const float deltaTime);
 private:
 	void WaitForTerminate();

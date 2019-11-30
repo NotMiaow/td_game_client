@@ -35,7 +35,7 @@ void GameClient::InitGameClient(int serverPort, Node* root)
     m_eventManager.Init(root, m_playerPosition, m_networkManager, m_eventQueue, m_players, m_banks, m_offenses, m_motors, m_transforms);
     m_inputManager.Init(root, m_playerPosition, m_networkManager, m_banks, m_transforms);
 
-	m_ecs.Init(m_players, m_banks, m_offenses, m_motors, m_transforms);
+	m_ecs.Init(root, m_players, m_banks, m_offenses, m_motors, m_transforms);
 }
 
 void GameClient::Update(const float deltaTime, Vector2 mousePos)
