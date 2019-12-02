@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <queue>
 
 //Libraries
 #include "basicLib.h"
@@ -70,6 +71,25 @@ static Event *CreateReadyUpEvent(const std::vector<std::string>& elements)
 static Event* CreateSpawnUnitGroupEvent()
 {
 	Event* e = new SpawnUnitGroupEvent();
+	return e;
+}
+
+static Event* CreateNewPathEvent(const std::vector<std::string>& elements)
+{
+	int playerPosition;
+	int motorPosition;
+	std::queue<Vector2>* path = new std::queue<Vector2>();
+
+	if (elements.size() != 3)
+		return CreateErrorEvent(ENewPath, GEWrongParemeterAmount);
+	if (!ToInt(elements[0], playerPosition))
+		return CreateErrorEvent(ENewPath, GEWrongParameterType);
+	if (!ToInt(elements[1], motorPosition))
+		return CreateErrorEvent(ENewPath, GEWrongParameterType);
+	if (!ToPath(elements[2], *path))
+		return CreateErrorEvent(ENewPath, GEWrongParameterType);
+
+	Event* e = new NewPathEvent(playerPosition, motorPosition, path);
 	return e;
 }
 
@@ -141,7 +161,7 @@ static Event *CreateGameEvent(std::vector<std::string> elements)
 		case ESpawnUnitGroup:
 			return CreateSpawnUnitGroupEvent();
 		case ENewPath:
-			//readonly
+			return CreateNewPathEvent(elements);
 			break;
 		case ERage:
 			//readonly

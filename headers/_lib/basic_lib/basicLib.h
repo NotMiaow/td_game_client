@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <string>
 #include <vector>
+#include <queue>
 
 using namespace godot;
 
@@ -127,6 +128,27 @@ static bool ToPosition(const std::string& s, godot::Vector2& position)
 		} while (end <= byteLen);
 	}
 	return false;
+}
+
+static bool ToPath(const std::string& s, std::queue<Vector2>& queue)
+{
+	int byteLen = (int)s.length();
+	if (s[0] == '(' && s[byteLen - 1] == ')')
+	{
+		int start = 0;
+		for(int i = 0; i < byteLen; i++)
+		{
+			if(s[i] == ')')
+			{
+				Vector2 position;
+				if(!ToPosition(s.substr(start, i - start + 1), position))
+					return false;
+				queue.push(position);
+				start = i + 1;
+			}
+		}
+	}
+	return true;
 }
 
 static int ToAbsoluteInt(const int& number)

@@ -37,19 +37,19 @@ void InputManager::Loop(const Vector2& mousePos)
             if(!TowerExists(floorTarget))
             {
                 MoveTowerPlaceholder(floorTarget);
-                if(Input::get_singleton()->is_action_just_released(String("build_tower")) && BuildTower(floorTarget))
+                if(Input::get_singleton()->is_action_just_pressed(String("build_tower")) && BuildTower(floorTarget))
                     DestroyTowerPlaceholder();
             }
             else 
             {
                 DestroyTowerPlaceholder();
-                if(Input::get_singleton()->is_action_just_released(String("sell_tower")))
+                if(Input::get_singleton()->is_action_just_pressed(String("sell_tower")))
                     SellTower(floorTarget);
             }
         }
         else DestroyTowerPlaceholder();
     }
-    if(Input::get_singleton()->is_action_just_released(String("spawn_unit")))
+    if(Input::get_singleton()->is_action_just_pressed(String("spawn_unit")))
         SpawnUnit();
 }
 

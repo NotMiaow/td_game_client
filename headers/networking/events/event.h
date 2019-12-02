@@ -115,9 +115,22 @@ struct SpawnUnitGroupEvent : public Event
 
 struct NewPathEvent : public Event
 {
-	NewPathEvent() { }
+	NewPathEvent(const int& playerPosition, const int& motorPosition, std::queue<Vector2>* path)
+	{
+		this->playerPosition = playerPosition;
+		this->motorPosition = motorPosition;
+		this->path = path;
+	}
+	~NewPathEvent() { delete path; }
 	EventType GetType() const { return ENewPath; }
+	std::string ToNetworkable() const
+	{
+		std::ostringstream os;
+		os << "{" << ENewPath << "}";
+		return os.str();
+	}
 
+	int playerPosition;
 	int motorPosition;
 	std::queue<Vector2>* path;
 };

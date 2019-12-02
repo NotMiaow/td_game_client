@@ -41,6 +41,7 @@ void EventManager::Loop()
         m_event = m_eventQueue->front();
 		Godot::print(m_event->ToNetworkable().c_str());
         if(m_event != 0) SwitchEvent();
+        delete m_event;
         m_eventQueue->pop_front();
     }
 }
@@ -64,6 +65,7 @@ void EventManager::SwitchEvent()
         SpawnUnitGroup();
         break;
     case ENewPath:
+        NewPath();
         break;
     case ERage:
         break;
@@ -144,6 +146,25 @@ void EventManager::SpawnUnitGroup()
 
     //Instantiate unit group
     Instantiate("unit_group", Vector2(SPAWN_POSITION_X, SPAWN_POSITION_Y), m_unitGroups);
+}
+
+void EventManager::NewPath()
+{
+    NewPathEvent* event = dynamic_cast<NewPathEvent*>(m_event);
+
+    CheckpointList<MotorComponent>::Iterator motorIt = m_motors->GetIterator(event->playerPosition, UNIT_GROUP_MOTORS);
+    CheckpointList<TransformComponent>::Iterator transformIt = m_transforms->GetIterator(event->playerPosition, UNIT_GROUP_TRANSFORMS);
+    for(int i = 0; i < event->motorPosition; i++, motorIt++, transformIt++);
+    MotorComponent* motor = motorIt.Get();
+    TransformComponent* transform = transformIt.Get();
+
+    motor->path = *event->path;
+    motor->behaviour = Move;
+    float distanceX = motor->path.front().x - transform->position.x;
+    float distanceY = motor->path.front().y - transform->position.y;
+    float distance = sqrt(pow(distanceX, 2) + pow(distanceY, 2));
+    motor->normalizedTarget.x = distanceX / distance;
+    motor->normalizedTarget.y = distanceY / distance;
 }
 
 void EventManager::BuildTower()

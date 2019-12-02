@@ -55,6 +55,7 @@ private:
     void Disconnect();
     void ReadyUp();
     void SpawnUnitGroup();
+    void NewPath();
     void BuildTower();
     void SellTower();
     void Instantiate(std::string path, Vector2 position, Node* parent);
