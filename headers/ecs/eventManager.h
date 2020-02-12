@@ -5,7 +5,8 @@
 #include <math.h>
 #include <string>
 #include <vector>
-#include <queue>
+#include <deque>
+#include <tuple>
 
 //Godot
 #include <Godot.hpp>
@@ -18,10 +19,7 @@
 //Paths
 #include "Vector2.hpp"
 
-#include "dataNode.h"
-#include "checkpointNode.h"
-#include "tabNode.h"
-#include "checkpointList.h"
+#include "componentArray.h"
 //Components
 #include "client.h"
 #include "playerComponent.h"
@@ -35,6 +33,9 @@
 #include "event.h"
 #include "shared_queue.h"
 
+//Misc
+#include "definitions.h"
+
 //Network Manager
 #include "networkManager.h"
 
@@ -45,9 +46,8 @@ class EventManager
 public:
     EventManager() { }
     ~EventManager();
-    void Init(Node* root, int& playerPosition, NetworkManager& networkManager, SharedQueue<Event*>& eventQueue, CheckpointList<PlayerComponent>& players,
-                CheckpointList<BankComponent>& banks, CheckpointList<OffenseComponent>& offenses, CheckpointList<MotorComponent>& motors,
-                CheckpointList<TransformComponent>& transforms);
+    void Init(Node* root, int& playerId, int& playerPosition, NetworkManager& networkManager, SharedQueue<Event*>& eventQueue,
+            Players& players, Banks& banks, Offenses& offenses, Motors& motors, Transforms& transforms);
     void Loop();
 private:
     void SwitchEvent();
@@ -56,19 +56,21 @@ private:
     void ReadyUp();
     void SpawnUnitGroup();
     void NewPath();
+    void SetRage();
     void BuildTower();
     void SellTower();
-    void Instantiate(std::string path, Vector2 position, Node* parent);
+    void Instantiate(std::string path, const int& index, Vector2 position, Node* parent);
 private:
+    int* m_playerId;
     int* m_playerPosition;
     Event* m_event;
     SharedQueue<Event*>* m_eventQueue;
 
-   	CheckpointList<PlayerComponent>* m_players;
-    CheckpointList<BankComponent>* m_banks;
-    CheckpointList<OffenseComponent>* m_offenses;
-   	CheckpointList<MotorComponent>* m_motors;
-	CheckpointList<TransformComponent>* m_transforms;
+   	Players* m_players;
+    Banks* m_banks;
+    Offenses* m_offenses;
+   	Motors* m_motors;
+	Transforms* m_transforms;
 
     NetworkManager* m_networkManager;
 

@@ -5,10 +5,11 @@ InputManager::~InputManager()
 
 }
 
-void InputManager::Init(Node* root, int& playerPosition, NetworkManager& networkManager, CheckpointList<BankComponent>& banks,
-    CheckpointList<TransformComponent>& transforms)
+void InputManager::Init(Node* root, int& playerId, int& playerPosition, NetworkManager& networkManager, Banks& banks, Transforms& transforms)
 {
+    m_playerId = &playerId;
     m_playerPosition = &playerPosition;
+
     m_networkManager = &networkManager;
 
     m_banks = &banks;
@@ -76,9 +77,9 @@ void InputManager::DestroyTowerPlaceholder()
 
 bool InputManager::BuildTower(const Vector2& position)
 {
-    CheckpointList<BankComponent>::Iterator bankIt = m_banks->GetIterator(*m_playerPosition, PLAYER_BANKS);
+    Banks::Row bank = m_banks->GetById(*m_playerId);
     
-    if(bankIt.Get()->gold >= TOWER_COSTS[0])
+    if(bank.data->gold >= TOWER_COSTS[0])
     {
         BuildTowerEvent buildTower;
         buildTower.position = position;
@@ -91,15 +92,17 @@ bool InputManager::BuildTower(const Vector2& position)
 
 void InputManager::SellTower(const Vector2& position)
 {
-    CheckpointList<TransformComponent>::Iterator transformIt = m_transforms->GetIterator(*m_playerPosition, TOWER_TRANSFORMS);
-    for(;!transformIt.End(); transformIt++)
-        if(transformIt.Get()->position.x == position.x && transformIt.Get()->position.y == position.y)
+    for(TransformIterator transformIt = m_transforms->GetIterator(GetCheckpoint(*m_playerPosition, TTransform, TOWER_TRANSFORMS));
+        !transformIt.End(); transformIt++)
+    {
+        if(transformIt.GetData()->position.x == position.x && transformIt.GetData()->position.y == position.y)
         {
             SellTowerEvent sellTowerEvent;
-            sellTowerEvent.towerPosition = position;
+            sellTowerEvent.entityId = transformIt.GetEntry()->entityId;
             m_networkManager->SendEvent(sellTowerEvent.ToNetworkable());
             break;
         }
+    }
 }
 
 void InputManager::SpawnUnit()
@@ -110,10 +113,12 @@ void InputManager::SpawnUnit()
 
 bool InputManager::TowerExists(const Vector2& position)
 {
-    CheckpointList<TransformComponent>::Iterator transformIt = m_transforms->GetIterator(*m_playerPosition, TOWER_TRANSFORMS);
-    for(;!transformIt.End(); transformIt++)
-        if(transformIt.Get()->position.x == position.x && transformIt.Get()->position.y == position.y)
+    for(TransformIterator transformIt = m_transforms->GetIterator(GetCheckpoint(*m_playerPosition, TTransform, TOWER_TRANSFORMS));
+        !transformIt.End(); transformIt++)
+    {
+         if(transformIt.GetData()->position.x == position.x && transformIt.GetData()->position.y == position.y)
            return true;
+    }
     return false;
 }
 

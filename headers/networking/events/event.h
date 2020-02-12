@@ -6,11 +6,10 @@
 #include <vector>
 #include <string>
 #include <sstream>
-#include <queue>
+#include <deque>
 
 //Libraries
 #include "basicLib.h"
-#include "checkpointList.h"
 
 //Godot includes
 #include "Godot.hpp"
@@ -31,7 +30,7 @@ struct Event
 	virtual EventType GetType() const = 0;
 	virtual std::string ToNetworkable() const = 0;
 
-	int clientId;
+	int playerId;
 };
 
 struct ErrorEvent : public Event
@@ -80,14 +79,15 @@ struct DisconnectEvent : public Event
 
 struct ReadyUpEvent : public Event
 {
-	ReadyUpEvent() { players = 0; banks = 0; }
-	ReadyUpEvent(int playerPosition, std::vector<PlayerComponent>* players, std::vector<BankComponent>* banks)
-	{
-		this->playerPosition = playerPosition;
+	ReadyUpEvent() { entityIds = 0; players = 0; banks = 0; }
+	ReadyUpEvent(const int& playerId, std::vector<int>* entityIds, std::vector<PlayerComponent>* players, std::vector<BankComponent>* banks)
+	{ 
+		this->playerId = playerId;
+		this->entityIds = entityIds;
 		this->players = players;
 		this->banks = banks;
 	}
-	~ReadyUpEvent() { delete players; delete banks; }
+	~ReadyUpEvent() { delete entityIds; delete players; delete banks; }
 	EventType GetType() const { return EReadyUp; }
 	std::string ToNetworkable() const
 	{
@@ -96,7 +96,7 @@ struct ReadyUpEvent : public Event
 		return os.str();
 	}
 
-	int playerPosition;
+	std::vector<int>* entityIds;
 	std::vector<PlayerComponent>* players;
 	std::vector<BankComponent>* banks;
 };
@@ -104,6 +104,11 @@ struct ReadyUpEvent : public Event
 struct SpawnUnitGroupEvent : public Event
 {
 	SpawnUnitGroupEvent() { }
+	SpawnUnitGroupEvent(const int& playerId, const int& entityId)
+	{
+		this->playerId = playerId;
+		this->entityId = entityId;
+	}
 	EventType GetType() const { return ESpawnUnitGroup; }
 	std::string ToNetworkable() const
 	{
@@ -111,14 +116,16 @@ struct SpawnUnitGroupEvent : public Event
 		os << "{" << ESpawnUnitGroup << "}";
 		return os.str();
 	}
+
+	int entityId;
 };
 
 struct NewPathEvent : public Event
 {
-	NewPathEvent(const int& playerPosition, const int& motorPosition, std::queue<Vector2>* path)
+	NewPathEvent(const int& playerId, const int& entityId, std::deque<Vector2>* path)
 	{
-		this->playerPosition = playerPosition;
-		this->motorPosition = motorPosition;
+		this->playerId = playerId;
+		this->entityId = entityId;
 		this->path = path;
 	}
 	~NewPathEvent() { delete path; }
@@ -130,31 +137,36 @@ struct NewPathEvent : public Event
 		return os.str();
 	}
 
-	int playerPosition;
-	int motorPosition;
-	std::queue<Vector2>* path;
+	int entityId;
+	std::deque<Vector2>* path;
 };
 
 struct RageEvent : public Event
 {
 	RageEvent() { }
+	RageEvent(const int& playerId, const int& entityId)
+	{
+		this->playerId = playerId;
+		this->entityId = entityId;
+	}
 	EventType GetType() const { return ERage; }
 	std::string ToNetworkable() const
 	{
 		std::ostringstream os;
-		os << "{" << ERage << ";" << motorPosition << "}";
+		os << "{" << ERage << ";" << entityId << "}";
 		return os.str();
 	}
 
-	int motorPosition;
+	int entityId;
 };
 
 struct BuildTowerEvent : public Event
 {
 	BuildTowerEvent() { }
-	BuildTowerEvent(const int& remainingGold, const int& towerType, const Vector2& position)
+	BuildTowerEvent(const int& playerId, const int& entityId, const int& remainingGold, const int& towerType, const Vector2& position)
 	{
-		this->clientId = clientId;
+		this->playerId = playerId;
+		this->entityId = entityId;
 		this->remainingGold = remainingGold;
 		this->towerType = towerType;
 		this->position = position;
@@ -167,6 +179,7 @@ struct BuildTowerEvent : public Event
 		return os.str();
 	}
 
+	int entityId;
 	int remainingGold;
 	int towerType;
 	Vector2 position;
@@ -175,21 +188,21 @@ struct BuildTowerEvent : public Event
 struct SellTowerEvent : public Event
 {
 	SellTowerEvent() { }
-	SellTowerEvent(const Vector2& towerPosition, const int& remainingGold)
+	SellTowerEvent(const int& playerId, const int& entityId, const int& remainingGold)
 	{
-		this->clientId = clientId;
-		this->towerPosition = towerPosition;
+		this->playerId = playerId;
+		this->entityId = entityId;
 		this->remainingGold = remainingGold;
 	}
 	EventType GetType() const { return ESellTower; }
 	std::string ToNetworkable() const
 	{
 		std::ostringstream os;
-		os << "{" << ESellTower << ";(" << towerPosition.y << ":" << towerPosition.x << ")}";
+		os << "{" << ESellTower << ';' << entityId << '}';
 		return os.str();
 	}
 
-	Vector2 towerPosition;
+	int entityId;
 	int remainingGold;
 };
 
@@ -198,7 +211,6 @@ struct SendUnitGroupEvent : public Event
 	SendUnitGroupEvent() { }
 	SendUnitGroupEvent(const int& unitType)
 	{
-		this->clientId = clientId;
 		this->unitType = unitType;
 	}
 	EventType GetType() const { return ESendUnitGroup; }

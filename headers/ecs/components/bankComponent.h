@@ -3,6 +3,8 @@
 
 struct BankComponent
 {
+	BankComponent() { }
+	BankComponent(const int& income, const int& gold) : income(income), gold(gold) { }
 	int income;
 	int gold;
 };

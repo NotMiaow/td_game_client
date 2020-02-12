@@ -26,14 +26,14 @@ void GameClient::InitGameClient(int serverPort, Node* root)
 	m_networkManager.Init(m_client, std::move(m_futureObj), m_serverPort, m_eventQueue);
 
 	//Initialise component data structure
-	m_players.Init(MAX_CLIENTS, PLAYER_CHECKPOINT_SIZE);
-	m_banks.Init(MAX_CLIENTS, BANK_CHECKPOINT_SIZE);
-	m_motors.Init(MAX_CLIENTS, MOTOR_CHECKPOINT_SIZE);
-	m_transforms.Init(MAX_CLIENTS, TRANSFORM_CHECKPOINT_SIZE);
-	m_offenses.Init(MAX_CLIENTS, OFFENSE_CHECKPOINT_SIZE);
+	m_players.Initialise({ 1, 1, 1, 1 });
+	m_banks.Initialise({ 1, 1, 1, 1 });
+	m_motors.Initialise({ 9, 9, 9, 9 });
+	m_transforms.Initialise({ 9, 110, 9, 110, 9, 110, 9, 110 });
+	m_offenses.Initialise({ 9, 110, 9, 110, 9, 110, 9, 110 });
 
-    m_eventManager.Init(root, m_playerPosition, m_networkManager, m_eventQueue, m_players, m_banks, m_offenses, m_motors, m_transforms);
-    m_inputManager.Init(root, m_playerPosition, m_networkManager, m_banks, m_transforms);
+    m_eventManager.Init(root, m_playerId, m_playerPosition, m_networkManager, m_eventQueue, m_players, m_banks, m_offenses, m_motors, m_transforms);
+    m_inputManager.Init(root, m_playerId, m_playerPosition, m_networkManager, m_banks, m_transforms);
 
 	m_ecs.Init(root, m_players, m_banks, m_offenses, m_motors, m_transforms);
 }

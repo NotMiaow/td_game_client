@@ -1,7 +1,6 @@
 #include "ecs.h"
 
-void ECS::Init(Node* root, CheckpointList<PlayerComponent>& players, CheckpointList<BankComponent>& banks, CheckpointList<OffenseComponent>& offenses,
-		CheckpointList<MotorComponent>& motors,	CheckpointList<TransformComponent>& transforms)
+void ECS::Init(Node* root, Players& players, Banks& banks, Offenses& offenses, Motors& motors, Transforms& transforms)
 {
     m_players = &players;
     m_banks = &banks;

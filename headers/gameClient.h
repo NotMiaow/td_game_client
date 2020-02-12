@@ -9,14 +9,13 @@
 #include <Camera.hpp>
 #include <PhysicsDirectSpaceState.hpp>
 
-#include "checkpointList.h"
+#include "componentArray.h"
 //Components
 #include "playerComponent.h"
 #include "bankComponent.h"
 #include "offenseComponent.h"
 #include "motorComponent.h"
 #include "transformComponent.h"
-#include "checkpointList.h"
 
 //Shared
 #include "shared_queue.h"
@@ -62,14 +61,15 @@ public:
 	SharedQueue<Event *> m_eventQueue;
 
 	//Components	
-	CheckpointList<PlayerComponent> m_players;
-	CheckpointList<BankComponent> m_banks;
-	CheckpointList<OffenseComponent> m_offenses;
-	CheckpointList<MotorComponent> m_motors;
-	CheckpointList<TransformComponent> m_transforms;
+	Players m_players;
+	Banks m_banks;
+	Offenses m_offenses;
+	Motors m_motors;
+	Transforms m_transforms;
 
 	//Networking
 	int m_serverPort;
+	int m_playerId;
 	int m_playerPosition;
 	Client m_client;
 	NetworkManager m_networkManager;

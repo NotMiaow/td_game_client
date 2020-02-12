@@ -3,11 +3,10 @@
 
 #include <string>
 #include <vector>
-#include <queue>
+#include <deque>
 
 //Libraries
 #include "basicLib.h"
-#include "checkpointList.h"
 
 //Godot
 #include <Godot.hpp>
@@ -46,85 +45,102 @@ static Event *CreateDisconnectEvent(DisconnectReason reason = RKicked)
 
 static Event *CreateReadyUpEvent(const std::vector<std::string>& elements)
 {
-	int playerPosition;
+	int playerId;
+	int entityId;
 	PlayerComponent player;
 	BankComponent bank;
-	std::vector<PlayerComponent>* players = new std::vector<PlayerComponent>();;
-	std::vector<BankComponent>* banks = new std::vector<BankComponent>();;
+	std::vector<int>* entityIds = new std::vector<int>();
+	std::vector<PlayerComponent>* players = new std::vector<PlayerComponent>(); 
+	std::vector<BankComponent>* banks = new std::vector<BankComponent>();
 
-	if (!ToInt(elements[0], playerPosition)) return CreateErrorEvent(EReadyUp, GEWrongParameterType);
+	if (!ToInt(elements[0], playerId)) return CreateErrorEvent(EReadyUp, GEWrongParameterType);
 	for (int i = 1; i < elements.size(); i++)
 	{
-		//Player
-		player.connected = elements[i] == "1";
-		player.ready = elements[++i] == "1";
-		if(ToInt(elements[++i], player.lives)) players->push_back(player);
-		//Banks
-		if(ToInt(elements[++i], bank.gold) && ToInt(elements[++i], bank.income)) banks->push_back(bank);
+		player.connected = elements[i++] == "1";
+		player.ready = elements[i++] == "1";
+		if( ToInt(elements[i++], entityId) &&
+			ToInt(elements[i++], player.lives) &&
+			ToInt(elements[i++], bank.gold) &&
+			ToInt(elements[i], bank.income))
+		{
+			entityIds->push_back(entityId);
+			players->push_back(player);
+			banks->push_back(bank);
+		}
 		else return CreateErrorEvent(EReadyUp, GEWrongParameterType);
 	}
 
-	Event *e = new ReadyUpEvent(playerPosition, players, banks);
+	Event *e = new ReadyUpEvent(playerId, entityIds, players, banks);
 	return e;
 }
 
-static Event* CreateSpawnUnitGroupEvent()
+static Event* CreateSpawnUnitGroupEvent(const std::vector<std::string>& elements)
 {
-	Event* e = new SpawnUnitGroupEvent();
+	int playerId, entityId;
+	if(!(ToInt(elements[0], playerId) && ToInt(elements[1], entityId))) return CreateErrorEvent(ESpawnUnitGroup, GEWrongParameterType);
+
+	Event* e = new SpawnUnitGroupEvent(playerId, entityId);
 	return e;
 }
 
 static Event* CreateNewPathEvent(const std::vector<std::string>& elements)
 {
-	int playerPosition;
-	int motorPosition;
-	std::queue<Vector2>* path = new std::queue<Vector2>();
+	int playerId;
+	int entityId;
+	std::deque<Vector2>* path = new std::deque<Vector2>();
 
 	if (elements.size() != 3)
 		return CreateErrorEvent(ENewPath, GEWrongParemeterAmount);
-	if (!ToInt(elements[0], playerPosition))
+	if (!ToInt(elements[0], playerId))
 		return CreateErrorEvent(ENewPath, GEWrongParameterType);
-	if (!ToInt(elements[1], motorPosition))
+	if (!ToInt(elements[1], entityId))
 		return CreateErrorEvent(ENewPath, GEWrongParameterType);
 	if (!ToPath(elements[2], *path))
 		return CreateErrorEvent(ENewPath, GEWrongParameterType);
 
-	Event* e = new NewPathEvent(playerPosition, motorPosition, path);
+	Event* e = new NewPathEvent(playerId, entityId, path);
+	return e;
+}
+
+static Event* CreateRageEvent(const std::vector<std::string>& elements)
+{
+	int playerId;
+	int entityId;
+
+	if (elements.size() != 2)
+		return CreateErrorEvent(ERage, GEWrongParemeterAmount);
+	if (!(ToInt(elements[0], playerId) && ToInt(elements[1], entityId)))
+		return CreateErrorEvent(ERage, GEWrongParameterType);
+	
+	Event* e = new RageEvent(playerId, entityId);
 	return e;
 }
 
 static Event *CreateBuildTowerEvent(const std::vector<std::string>& elements)
 {
-	int remainingGold;
-	int towerType;
+	int playerId, remainingGold, entityId, towerType;
 	Vector2 position;
 
-	if (elements.size() != 3)
-		return CreateErrorEvent(EBuildTower, GEWrongParemeterAmount);
-	if (!ToInt(elements[0], remainingGold))
-		return CreateErrorEvent(EBuildTower, GEWrongParameterType);
-	if (!ToInt(elements[1], towerType))
-		return CreateErrorEvent(EBuildTower, GEWrongParameterType);
-	if (!ToPosition(elements[2], position))
+	if (elements.size() != 5) return CreateErrorEvent(EBuildTower, GEWrongParemeterAmount);
+	if (!(ToInt(elements[0], playerId) && ToInt(elements[1], remainingGold) &&
+		ToInt(elements[2], entityId) &&  ToInt(elements[3], towerType) &&
+		ToPosition(elements[4], position)))
 		return CreateErrorEvent(EBuildTower, GEWrongParameterType);
 
-	Event *e = new BuildTowerEvent(remainingGold, towerType, position);
+	Event *e = new BuildTowerEvent(playerId, entityId, remainingGold, towerType, position);
 	return e;
 }
 
 static Event *CreateSellTowerEvent(const std::vector<std::string>& elements)
 {
-	Vector2 towerPosition;
-	int remainingGold;
+	int playerId, entityId, remainingGold;
 
-	if (elements.size() != 2)
-		return CreateErrorEvent(ESellTower, GEWrongParemeterAmount);
-	if (!ToPosition(elements[0], towerPosition))
-		return CreateErrorEvent(ESellTower, GEWrongParameterType);
-	if (!ToInt(elements[1], remainingGold))
+	if (elements.size() != 3) return CreateErrorEvent(ESellTower, GEWrongParemeterAmount);
+	if (!(ToInt(elements[0], playerId) && ToInt(elements[1], entityId) &&
+		ToInt(elements[2], remainingGold)))
 		return CreateErrorEvent(ESellTower, GEWrongParameterType);
 
-	Event *e = new SellTowerEvent(towerPosition, remainingGold);
+	Event *e = new SellTowerEvent(playerId, entityId, remainingGold);
 	return e;
 }
 
@@ -159,13 +175,11 @@ static Event *CreateGameEvent(std::vector<std::string> elements)
 		case EReadyUp:
 			return CreateReadyUpEvent(elements);
 		case ESpawnUnitGroup:
-			return CreateSpawnUnitGroupEvent();
+			return CreateSpawnUnitGroupEvent(elements);
 		case ENewPath:
 			return CreateNewPathEvent(elements);
-			break;
 		case ERage:
-			//readonly
-			break;
+			return CreateRageEvent(elements);
 		case EBuildTower:
 			return CreateBuildTowerEvent(elements);
 		case ESellTower:

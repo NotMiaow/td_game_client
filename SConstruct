@@ -53,7 +53,7 @@ if platform == "windows":
 env.Append(CPPPATH=['.', 'src/', godot_headers_path, cpp_bindings_path + 'include/', cpp_bindings_path + 'include/core/', cpp_bindings_path + 'include/gen/',
     'headers/_lib/basic_lib',
     'headers/_lib/chain',
-    'headers/_lib/checkpoint_list',
+    'headers/_lib/component_array',
     'headers/_lib/path',
     'headers/_lib/queue',
     'headers/networking/events',

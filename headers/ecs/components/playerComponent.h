@@ -5,6 +5,9 @@
 
 struct PlayerComponent
 {
+	PlayerComponent() : connected(false), ready(false), lives(0) { }
+	PlayerComponent(const bool& connected, const bool& ready, const int& lives) { }
+	Client* client;
 	bool connected;
 	bool ready;
 	int lives;

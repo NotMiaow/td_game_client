@@ -63,7 +63,7 @@ void NetworkManager::TryConnect()
 				ConnectAction connectAction;
 				connectAction.clientId = m_client.id;
 				connectAction.sessionToken = m_client.token;
-				std::string message = connectAction.ToNetworkable().c_str();
+				std::string message = connectAction.ToNetworkable();
 				message = std::to_string(message.length()) + message;
 				send(m_clientSocket, message.c_str(), message.length(), 0);
 			}

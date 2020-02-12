@@ -19,7 +19,7 @@
 //Shared
 #include "event.h"
 
-#include "checkpointList.h"
+#include "componentArray.h"
 //Components
 #include "transformComponent.h"
 
@@ -27,6 +27,7 @@
 #include "networkManager.h"
 
 //Misc
+#include "definitions.h"
 #include "cst.h"
 #include "gameEnums.h"
 
@@ -37,8 +38,7 @@ class InputManager
 public:
     InputManager() { };
     ~InputManager();
-    void Init(Node* root, int& playerPosition, NetworkManager& networkManager, CheckpointList<BankComponent>& banks,
-        CheckpointList<TransformComponent>& transforms);
+    void Init(Node* root, int& playerId, int& playerPosition, NetworkManager& networkManager, Banks& banks, Transforms& transforms);
     void Loop(const Vector2& mousePos);
 private:
     void MoveTowerPlaceholder(const Vector2& position);
@@ -48,11 +48,12 @@ private:
     void SpawnUnit();
     bool TowerExists(const Vector2& position);
 private:
+    int* m_playerId;
     int* m_playerPosition;
     NetworkManager* m_networkManager;
     
-    CheckpointList<BankComponent>* m_banks;    
-    CheckpointList<TransformComponent>* m_transforms;
+    Banks* m_banks;    
+    Transforms* m_transforms;
 
     Node* m_root;
     Node* m_towerPlaceholderParent;

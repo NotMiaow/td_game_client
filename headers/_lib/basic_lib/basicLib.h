@@ -8,7 +8,7 @@
 #include <cstdlib>
 #include <string>
 #include <vector>
-#include <queue>
+#include <deque>
 
 using namespace godot;
 
@@ -130,7 +130,7 @@ static bool ToPosition(const std::string& s, godot::Vector2& position)
 	return false;
 }
 
-static bool ToPath(const std::string& s, std::queue<Vector2>& queue)
+static bool ToPath(const std::string& s, std::deque<Vector2>& queue)
 {
 	int byteLen = (int)s.length();
 	if (s[0] == '(' && s[byteLen - 1] == ')')
@@ -143,7 +143,7 @@ static bool ToPath(const std::string& s, std::queue<Vector2>& queue)
 				Vector2 position;
 				if(!ToPosition(s.substr(start, i - start + 1), position))
 					return false;
-				queue.push(position);
+				queue.push_back(position);
 				start = i + 1;
 			}
 		}
